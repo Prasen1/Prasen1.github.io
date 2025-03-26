@@ -1,511 +1,349 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Comprehensive Financial Planner</title>
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/html2pdf.js"></script>
-      <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-      <style>
-         .tooltip {
-         position: relative;
-         display: inline-block;
-         border-bottom: 1px dotted black;
-         cursor: help;
-         }
-         .tooltip .tooltiptext {
-         visibility: hidden;
-         width: 250px;
-         background-color: #555;
-         color: #fff;
-         text-align: center;
-         border-radius: 6px;
-         padding: 5px;
-         position: absolute;
-         z-index: 1;
-         bottom: 125%;
-         left: 50%;
-         margin-left: -125px;
-         opacity: 0;
-         transition: opacity 0.3s;
-         }
-         .tooltip:hover .tooltiptext {
-         visibility: visible;
-         opacity: 1;
-         }
-         @media (max-width: 640px) {
-         .mobile-stack > * {
-         width: 100% !important;
-         margin-bottom: 1rem;
-         }
-         }
-      </style>
-   </head>
-   <body class="bg-gradient-to-br from-blue-50 to-blue-100 text-gray-900 min-h-screen">
-      <div class="container mx-auto p-6">
-         <h1 class="text-4xl font-extrabold text-center mb-8 text-blue-800">Advanced Financial Planning Tools</h1>
-         <div class="grid md:grid-cols-2 gap-6">
-            <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300">
-               <h2 class="text-2xl font-semibold mb-4 text-blue-700 flex items-center">
-                  Loan Prepayment Calculator 
-                  <span class="tooltip ml-2">
-                  <i class="fas fa-info-circle text-blue-500"></i>
-                  <span class="tooltiptext text-sm">
-                  Calculate how extra payments can reduce your loan tenure and total interest paid. 
-                  Enter your loan details and potential extra monthly payment.
-                  </span>
-                  </span>
-               </h2>
-               <div class="space-y-4">
-                  <select id="loanScenario" class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                     <option value="">Select Loan Scenario</option>
-                     <option value="home">Home Loan</option>
-                     <option value="car">Car Loan</option>
-                     <option value="personal">Personal Loan</option>
-                     <option value="custom">Custom Loan</option>
-                  </select>
-                  <input type="number" id="loanAmount" placeholder="Loan Amount" 
-                     class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                     min="0" step="1000" required>
-                  <input type="number" id="interestRate" placeholder="Interest Rate (%)" 
-                     class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                     min="0" max="100" step="0.1" required>
-                  <input type="number" id="loanTenure" placeholder="Loan Tenure (years)" 
-                     class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                     min="1" max="50" required>
-                  <input type="number" id="extraPayment" placeholder="Extra Monthly Payment" 
-                     class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
-                     min="0" step="100">
-                  <div class="flex mobile-stack space-x-2">
-                     <button onclick="calculateLoan()" 
-                        class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
-                     Calculate Loan Prepayment
-                     </button>
-                     <button onclick="exportLoanReport()" 
-                        class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
-                     Export Report
-                     </button>
-                  </div>
-               </div>
-               <div id="loanResults" class="mt-6 hidden">
-                  <canvas id="loanChart" class="mt-4"></canvas>
-                  <div class="mt-4 bg-blue-50 p-4 rounded-lg">
-                     <h3 class="text-lg font-semibold mb-2 text-blue-800">Loan Summary</h3>
-                     <p id="totalInterestSaved" class="text-gray-700"></p>
-                     <p id="monthsReduced" class="text-gray-700"></p>
-                  </div>
-                  <div class="overflow-auto max-h-64 mt-4">
-                     <table id="loanTable" class="w-full border border-gray-300 text-left">
-                        <thead class="bg-blue-100">
-                           <tr>
-                              <th class="p-2">Month</th>
-                              <th class="p-2">Balance</th>
-                              <th class="p-2">Interest Paid</th>
-                              <th class="p-2">Principal Paid</th>
-                           </tr>
-                        </thead>
-                        <tbody></tbody>
-                     </table>
-                  </div>
-               </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Financial Planner</title>
+    <link href="./css/style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 text-gray-900 min-h-screen">
+    <div class="container mx-auto p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-4xl font-extrabold text-blue-800 dark:text-blue-300">Advanced Financial Planning Tools</h1>
+            <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:inline"></i>
+            </button>
+        </div>
+        
+        <!-- Calculators Section -->
+        <div class="grid md:grid-cols-2 gap-6 mb-12">
+            <!-- Loan Prepayment Calculator -->
+            <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
+                <h2 class="text-2xl font-semibold mb-4 text-blue-700 dark:text-blue-300 flex items-center">
+                    Loan Prepayment Calculator 
+                    <span class="tooltip ml-2">
+                    <i class="fas fa-info-circle text-blue-500"></i>
+                    <span class="tooltiptext text-sm">
+                    Calculate how extra payments can reduce your loan tenure and total interest paid. 
+                    Enter your loan details and potential extra monthly payment.
+                    </span>
+                    </span>
+                </h2>
+                <div class="space-y-4">
+                    <select id="loanScenario" class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        <option value="">Select Loan Scenario</option>
+                        <option value="home">Home Loan</option>
+                        <option value="car">Car Loan</option>
+                        <option value="personal">Personal Loan</option>
+                        <option value="custom">Custom Loan</option>
+                    </select>
+                    <div>
+                        <label for="loanAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Loan Amount</label>
+                        <input type="number" id="loanAmount" placeholder="E.g. 5000000" 
+                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="1000" step="1000" required>
+                    </div>
+                    <div>
+                        <label for="interestRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interest Rate (%)</label>
+                        <input type="number" id="interestRate" placeholder="E.g. 8.5" 
+                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="0" max="30" step="0.01" required>
+                    </div>
+                    <div>
+                        <label for="loanTenure" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Loan Tenure (years)</label>
+                        <input type="number" id="loanTenure" placeholder="E.g. 20" 
+                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="1" max="50" required>
+                    </div>
+                    <div>
+                        <label for="extraPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Extra Monthly Payment (optional)</label>
+                        <input type="number" id="extraPayment" placeholder="E.g. 5000" 
+                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="0" step="100">
+                    </div>
+                    <div>
+                        <label for="startPrepaymentMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Prepayment From (Month)</label>
+                        <input type="number" id="startPrepaymentMonth" placeholder="E.g. 12 (after 1 year)" 
+                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="1" step="1" value="1">
+                    </div>
+                    <div>
+                        <label for="lumpSumAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lump Sum Payment Amount (optional)</label>
+                        <input type="number" id="lumpSumAmount" placeholder="E.g. 50000" 
+                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="0" step="1000">
+                    </div>
+                    <div>
+                        <label for="lumpSumMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lump Sum Payment Month (optional)</label>
+                        <input type="number" id="lumpSumMonth" placeholder="E.g. 24 (after 2 years)" 
+                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="1" step="1">
+                    </div>
+                    <div class="flex mobile-stack space-x-2">
+                        <button id="loanCalculateBtn"
+                            class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center">
+                            <span id="loanBtnText">Calculate Loan Prepayment</span>
+                            <span id="loanSpinner" class="loading-spinner ml-2 hidden"></span>
+                        </button>
+                        <button id="clearLoanBtn"
+                            class="flex-1 bg-gray-500 text-white p-3 rounded-lg hover:bg-gray-600 transition-colors font-semibold">
+                            Clear Form
+                        </button>
+                    </div>
+                    <div class="flex mobile-stack space-x-2">
+                        <button id="exportLoanBtn"
+                            class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                            Export Report
+                        </button>
+                        <button id="loanExampleBtn"
+                            class="flex-1 bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                            Show Example
+                        </button>
+                    </div>
+                </div>
+                <div id="loanResults" class="mt-6 hidden">
+                    <canvas id="loanChart" class="mt-4" aria-label="Loan repayment chart" role="img"></canvas>
+                    <div class="mt-4 bg-blue-50 p-4 rounded-lg dark:bg-blue-900">
+                        <h3 class="text-lg font-semibold mb-2 text-blue-800 dark:text-blue-200">Loan Summary</h3>
+                        <p id="originalLoanTerms" class="text-gray-700 dark:text-gray-300"></p>
+                        <p id="totalInterestSaved" class="text-gray-700 dark:text-gray-300"></p>
+                        <p id="monthsReduced" class="text-gray-700 dark:text-gray-300"></p>
+                        <p id="newLoanTerms" class="text-gray-700 dark:text-gray-300"></p>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Amortization Schedule</label>
+                        <div class="overflow-auto max-h-96">
+                            <table id="loanTable" class="w-full border border-gray-300 text-left">
+                                <thead class="bg-blue-100 dark:bg-blue-800">
+                                    <tr>
+                                        <th class="p-2">Month</th>
+                                        <th class="p-2">Balance</th>
+                                        <th class="p-2">Interest Paid</th>
+                                        <th class="p-2">Principal Paid</th>
+                                        <th class="p-2">Payment Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300">
-               <h2 class="text-2xl font-semibold mb-4 text-green-700 flex items-center">
-                  SIP Growth Calculator 
-                  <span class="tooltip ml-2">
-                  <i class="fas fa-info-circle text-green-500"></i>
-                  <span class="tooltiptext text-sm">
-                  Calculate your Systematic Investment Plan (SIP) growth. 
-                  Factor in step-up investments and inflation impact.
-                  </span>
-                  </span>
-               </h2>
-               <div class="space-y-4">
-                  <select id="investmentGoal" class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400">
-                     <option value="">Select Investment Goal</option>
-                     <option value="retirement">Retirement Planning</option>
-                     <option value="education">Child's Education</option>
-                     <option value="home">Home Purchase</option>
-                     <option value="custom">Custom Goal</option>
-                  </select>
-                  <input type="number" id="sipAmount" placeholder="Monthly SIP" 
-                     class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" 
-                     min="0" step="100" required>
-                  <input type="number" id="sipReturn" placeholder="Expected Return (%)" 
-                     class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" 
-                     min="0" max="100" step="0.1" required>
-                  <input type="number" id="sipYears" placeholder="Investment Duration (years)" 
-                     class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" 
-                     min="1" max="50" required>
-                  <input type="number" id="sipStepUp" placeholder="Annual Step-Up (%)" 
-                     class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" 
-                     min="0" max="100" step="0.1">
-                  <input type="number" id="inflationRate" placeholder="Inflation Rate (%)" 
-                     class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400" 
-                     min="0" max="100" step="0.1" required>
-                  <div class="flex mobile-stack space-x-2">
-                     <button onclick="calculateSIP()" 
-                        class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
-                     Calculate SIP Growth
-                     </button>
-                     <button onclick="exportSIPReport()" 
-                        class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
-                     Export Report
-                     </button>
-                  </div>
-               </div>
-               <div id="sipResults" class="mt-6 hidden">
-                  <canvas id="sipChart" class="mt-4"></canvas>
-                  <div class="mt-4 bg-green-50 p-4 rounded-lg">
-                     <h3 class="text-lg font-semibold mb-2 text-green-800">Investment Summary</h3>
-                     <p id="totalInvestment" class="text-gray-700"></p>
-                     <p id="realReturns" class="text-gray-700"></p>
-                  </div>
-                  <div class="overflow-auto max-h-64 mt-4">
-                     <table id="sipTable" class="w-full border border-gray-300 text-left">
-                        <thead class="bg-green-100">
-                           <tr>
-                              <th class="p-2">Month</th>
-                              <th class="p-2">Investment Value</th>
-                              <th class="p-2">Inflation Adjusted Value</th>
-                           </tr>
-                        </thead>
-                        <tbody></tbody>
-                     </table>
-                  </div>
-               </div>
+
+            <!-- SIP Growth Calculator -->
+            <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
+                <h2 class="text-2xl font-semibold mb-4 text-green-700 dark:text-green-300 flex items-center">
+                    SIP Growth Calculator 
+                    <span class="tooltip ml-2">
+                    <i class="fas fa-info-circle text-green-500"></i>
+                    <span class="tooltiptext text-sm">
+                    Calculate your Systematic Investment Plan (SIP) growth. 
+                    Factor in step-up investments and inflation impact.
+                    </span>
+                    </span>
+                </h2>
+                <div class="space-y-4">
+                    <select id="investmentGoal" class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        <option value="">Select Investment Goal</option>
+                        <option value="retirement">Retirement Planning</option>
+                        <option value="education">Child's Education</option>
+                        <option value="home">Home Purchase</option>
+                        <option value="custom">Custom Goal</option>
+                    </select>
+                    <div>
+                        <label for="sipAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly SIP</label>
+                        <input type="number" id="sipAmount" placeholder="E.g. 10000" 
+                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="100" step="100" required>
+                    </div>
+                    <div>
+                        <label for="sipReturn" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expected Return (%)</label>
+                        <input type="number" id="sipReturn" placeholder="E.g. 12" 
+                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="0" max="30" step="0.1" required>
+                    </div>
+                    <div>
+                        <label for="sipYears" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Investment Duration (years)</label>
+                        <input type="number" id="sipYears" placeholder="E.g. 15" 
+                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="1" max="50" required>
+                    </div>
+                    <div>
+                        <label for="sipStepUp" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Annual Step-Up (%) (optional)</label>
+                        <input type="number" id="sipStepUp" placeholder="E.g. 10" 
+                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="0" max="100" step="0.1">
+                    </div>
+                    <div>
+                        <label for="inflationRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Inflation Rate (%) (optional)</label>
+                        <input type="number" id="inflationRate" placeholder="E.g. 6" 
+                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                            min="0" max="20" step="0.1">
+                    </div>
+                    <div class="flex mobile-stack space-x-2">
+                        <button id="sipCalculateBtn"
+                            class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center">
+                            <span id="sipBtnText">Calculate SIP Growth</span>
+                            <span id="sipSpinner" class="loading-spinner ml-2 hidden"></span>
+                        </button>
+                        <button id="clearSIPBtn"
+                            class="flex-1 bg-gray-500 text-white p-3 rounded-lg hover:bg-gray-600 transition-colors font-semibold">
+                            Clear Form
+                        </button>
+                    </div>
+                    <div class="flex mobile-stack space-x-2">
+                        <button id="exportSIPBtn"
+                            class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                            Export Report
+                        </button>
+                        <button id="sipExampleBtn"
+                            class="flex-1 bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                            Show Example
+                        </button>
+                    </div>
+                </div>
+                <div id="sipResults" class="mt-6 hidden">
+                    <canvas id="sipChart" class="mt-4" aria-label="SIP growth chart" role="img"></canvas>
+                    <div class="mt-4 bg-green-50 p-4 rounded-lg dark:bg-green-900">
+                        <h3 class="text-lg font-semibold mb-2 text-green-800 dark:text-green-200">Investment Summary</h3>
+                        <p id="totalInvestment" class="text-gray-700 dark:text-gray-300"></p>
+                        <p id="finalValue" class="text-gray-700 dark:text-gray-300"></p>
+                        <p id="realReturns" class="text-gray-700 dark:text-gray-300"></p>
+                        <p id="wealthGain" class="text-gray-700 dark:text-gray-300"></p>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Investment Growth Table</label>
+                        <div class="overflow-auto max-h-96">
+                            <table id="sipTable" class="w-full border border-gray-300 text-left">
+                                <thead class="bg-green-100 dark:bg-green-800">
+                                    <tr>
+                                        <th class="p-2">Month</th>
+                                        <th class="p-2">Investment Value</th>
+                                        <th class="p-2">Inflation Adjusted Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-         </div>
-      </div>
-      <script>
-         // Local Storage Management
-         function saveCalculation(type, data) {
-             let calculations = JSON.parse(localStorage.getItem('financialCalculations') || '[]');
-             calculations.push({type, data, timestamp: new Date().toISOString()});
-             
-             // Keep only last 10 calculations
-             if (calculations.length > 10) {
-                 calculations = calculations.slice(-10);
-             }
-             
-             localStorage.setItem('financialCalculations', JSON.stringify(calculations));
-         }
-         
-         function loadPreviousCalculations() {
-             let calculations = JSON.parse(localStorage.getItem('financialCalculations') || '[]');
-             console.log('Previous Calculations:', calculations);
-         }
-         
-         // Predefined Scenarios
-         const loanScenarios = {
-             'home': { defaultInterest: 8.5, defaultTenure: 20 },
-             'car': { defaultInterest: 9.5, defaultTenure: 7 },
-             'personal': { defaultInterest: 12, defaultTenure: 5 }
-         };
-         
-         const investmentGoals = {
-             'retirement': { defaultReturn: 12, defaultYears: 30 },
-             'education': { defaultReturn: 10, defaultYears: 15 },
-             'home': { defaultReturn: 8, defaultYears: 10 }
-         };
-         
-         // Scenario Selection Logic
-         document.getElementById('loanScenario').addEventListener('change', function() {
-             const scenario = this.value;
-             if (loanScenarios[scenario]) {
-                 document.getElementById('interestRate').value = loanScenarios[scenario].defaultInterest;
-                 document.getElementById('loanTenure').value = loanScenarios[scenario].defaultTenure;
-             }
-         });
-         
-         document.getElementById('investmentGoal').addEventListener('change', function() {
-             const goal = this.value;
-             if (investmentGoals[goal]) {
-                 document.getElementById('sipReturn').value = investmentGoals[goal].defaultReturn;
-                 document.getElementById('sipYears').value = investmentGoals[goal].defaultYears;
-             }
-         });
-         
-         // Export Functions
-         function exportLoanReport() {
-             const { jsPDF } = window.jspdf;
-             const doc = new jsPDF();
-             doc.text('Loan Prepayment Report', 10, 10);
-             doc.text(document.getElementById('totalInterestSaved').textContent, 10, 20);
-             doc.text(document.getElementById('monthsReduced').textContent, 10, 30);
-             doc.save('loan_prepayment_report.pdf');
-         }
-         
-         function exportSIPReport() {
-             const { jsPDF } = window.jspdf;
-             const doc = new jsPDF();
-             doc.text('SIP Growth Report', 10, 10);
-             doc.text(document.getElementById('totalInvestment').textContent, 10, 20);
-             doc.text(document.getElementById('realReturns').textContent, 10, 30);
-             doc.save('sip_growth_report.pdf');
-         }
-         
-         // Previous calculation functions (calculateLoan and calculateSIP) remain the same as in the previous artifact
-         // with added saveCalculation() call at the end of each function
-         
-         // Local Storage Management
-         function saveCalculation(type, data) {
-         let calculations = JSON.parse(localStorage.getItem('financialCalculations') || '[]');
-         calculations.push({type, data, timestamp: new Date().toISOString()});
-         
-         // Keep only last 10 calculations
-         if (calculations.length > 10) {
-             calculations = calculations.slice(-10);
-         }
-         
-         localStorage.setItem('financialCalculations', JSON.stringify(calculations));
-         }
-         
-         function loadPreviousCalculations() {
-         let calculations = JSON.parse(localStorage.getItem('financialCalculations') || '[]');
-         console.log('Previous Calculations:', calculations);
-         }
-         
-         // Input Validation Function
-         function validateInputs(inputs) {
-         for (let input of inputs) {
-             if (!input.value || isNaN(parseFloat(input.value))) {
-                 input.classList.add('border-red-500');
-                 input.focus();
-                 return false;
-             }
-             input.classList.remove('border-red-500');
-         }
-         return true;
-         }
-         
-         // Loan Calculation Function
-         let loanChart = null;
-         function calculateLoan() {
-         const loanInputs = [
-             document.getElementById('loanAmount'),
-             document.getElementById('interestRate'),
-             document.getElementById('loanTenure')
-         ];
-         
-         // Validation
-         if (!validateInputs(loanInputs)) {
-             alert('Please fill in all required fields with valid numbers.');
-             return;
-         }
-         
-         let loanAmount = parseFloat(document.getElementById('loanAmount').value);
-         let interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
-         let loanTenure = parseFloat(document.getElementById('loanTenure').value) * 12;
-         let extraPayment = parseFloat(document.getElementById('extraPayment').value || 0);
-         
-         let emi = (loanAmount * interestRate * Math.pow(1 + interestRate, loanTenure)) / 
-                   (Math.pow(1 + interestRate, loanTenure) - 1);
-         let remainingBalance = loanAmount;
-         let months = 0;
-         let balanceData = [];
-         let tableHTML = "";
-         let totalInterestPaid = 0;
-         let originalMonths = loanTenure;
-         
-         while (remainingBalance > 0) {
-             let interest = remainingBalance * interestRate;
-             let principal = emi - interest + extraPayment;
-             totalInterestPaid += interest;
-             remainingBalance -= principal;
-             months++;
-             balanceData.push({x: months, y: Math.max(remainingBalance, 0)});
-             tableHTML += `<tr>
-                 <td class='p-2'>${months}</td>
-                 <td class='p-2'>${Math.max(remainingBalance, 0).toFixed(2)}</td>
-                 <td class='p-2'>${interest.toFixed(2)}</td>
-                 <td class='p-2'>${principal.toFixed(2)}</td>
-             </tr>`;
-         
-             // Prevent infinite loop
-             if (months > originalMonths * 2) break;
-         }
-         
-         // Save calculation to local storage
-         saveCalculation('loan', {
-             loanAmount,
-             interestRate: document.getElementById('interestRate').value,
-             loanTenure: document.getElementById('loanTenure').value,
-             extraPayment
-         });
-         
-         // Update loan results
-         document.getElementById('loanTable').querySelector('tbody').innerHTML = tableHTML;
-         document.getElementById('totalInterestSaved').innerHTML = `Total Interest Saved: ₹${(originalMonths * emi - (months * emi)).toFixed(2)}`;
-         document.getElementById('monthsReduced').innerHTML = `Months Reduced: ${originalMonths - months}`;
-         document.getElementById('loanResults').classList.remove('hidden');
-         
-         // Destroy previous chart if exists
-         if (loanChart !== null) loanChart.destroy();
-         loanChart = new Chart(document.getElementById('loanChart'), {
-             type: 'line',
-             data: { 
-                 datasets: [{ 
-                     label: 'Loan Balance', 
-                     data: balanceData, 
-                     borderColor: 'blue', 
-                     fill: false 
-                 }] 
-             },
-             options: { 
-                 responsive: true,
-                 scales: { 
-                     x: { 
-                         type: 'linear', 
-                         position: 'bottom',
-                         title: { display: true, text: 'Months' }
-                     },
-                     y: { 
-                         title: { display: true, text: 'Balance' }
-                     }
-                 } 
-             }
-         });
-         }
-         
-         // SIP Calculation Function
-         let sipChart = null;
-         function calculateSIP() {
-         const sipInputs = [
-             document.getElementById('sipAmount'),
-             document.getElementById('sipReturn'),
-             document.getElementById('sipYears'),
-             document.getElementById('inflationRate')
-         ];
-         
-         // Validation
-         if (!validateInputs(sipInputs)) {
-             alert('Please fill in all required fields with valid numbers.');
-             return;
-         }
-         
-         let sipAmount = parseFloat(document.getElementById('sipAmount').value);
-         let sipReturn = parseFloat(document.getElementById('sipReturn').value) / 100 / 12;
-         let sipYears = parseFloat(document.getElementById('sipYears').value) * 12;
-         let sipStepUp = parseFloat(document.getElementById('sipStepUp').value || 0) / 100;
-         let inflationRate = parseFloat(document.getElementById('inflationRate').value) / 100 / 12;
-         
-         let totalAmount = 0;
-         let totalInvested = 0;
-         let sipData = [];
-         let tableHTML = "";
-         
-         for (let i = 1; i <= sipYears; i++) {
-             if (i % 12 === 1 && i > 1) {
-                 sipAmount *= (1 + sipStepUp);
-             }
-             totalInvested += sipAmount;
-             totalAmount = (totalAmount + sipAmount) * (1 + sipReturn);
-             let inflationAdjusted = totalAmount / Math.pow(1 + inflationRate, i);
-             sipData.push({x: i, y: totalAmount});
-             tableHTML += `<tr>
-                 <td class='p-2'>${i}</td>
-                 <td class='p-2'>${totalAmount.toFixed(2)}</td>
-                 <td class='p-2'>${inflationAdjusted.toFixed(2)}</td>
-             </tr>`;
-         }
-         
-         // Save calculation to local storage
-         saveCalculation('sip', {
-             sipAmount,
-             sipReturn: document.getElementById('sipReturn').value,
-             sipYears: document.getElementById('sipYears').value,
-             sipStepUp: document.getElementById('sipStepUp').value,
-             inflationRate: document.getElementById('inflationRate').value
-         });
-         
-         // Update SIP results
-         document.getElementById('sipTable').querySelector('tbody').innerHTML = tableHTML;
-         document.getElementById('totalInvestment').innerHTML = `Total Invested: ₹${totalInvested.toFixed(2)}`;
-         document.getElementById('realReturns').innerHTML = `Final Investment Value: ₹${totalAmount.toFixed(2)}`;
-         document.getElementById('sipResults').classList.remove('hidden');
-         
-         // Destroy previous chart if exists
-         if (sipChart !== null) sipChart.destroy();
-         sipChart = new Chart(document.getElementById('sipChart'), {
-             type: 'line',
-             data: { 
-                 datasets: [{ 
-                     label: 'SIP Growth', 
-                     data: sipData, 
-                     borderColor: 'green', 
-                     fill: false 
-                 }] 
-             },
-             options: { 
-                 responsive: true,
-                 scales: { 
-                     x: { 
-                         type: 'linear', 
-                         position: 'bottom',
-                         title: { display: true, text: 'Months' }
-                     },
-                     y: { 
-                         title: { display: true, text: 'Investment Value' }
-                     }
-                 } 
-             }
-         });
-         }
-         
-         // Scenario Selection Logic
-         document.addEventListener('DOMContentLoaded', () => {
-         const loanScenarios = {
-             'home': { defaultInterest: 8.5, defaultTenure: 20 },
-             'car': { defaultInterest: 9.5, defaultTenure: 7 },
-             'personal': { defaultInterest: 12, defaultTenure: 5 }
-         };
-         
-         const investmentGoals = {
-             'retirement': { defaultReturn: 12, defaultYears: 30 },
-             'education': { defaultReturn: 10, defaultYears: 15 },
-             'home': { defaultReturn: 8, defaultYears: 10 }
-         };
-         
-         document.getElementById('loanScenario').addEventListener('change', function() {
-             const scenario = this.value;
-             if (loanScenarios[scenario]) {
-                 document.getElementById('interestRate').value = loanScenarios[scenario].defaultInterest;
-                 document.getElementById('loanTenure').value = loanScenarios[scenario].defaultTenure;
-             }
-         });
-         
-         document.getElementById('investmentGoal').addEventListener('change', function() {
-             const goal = this.value;
-             if (investmentGoals[goal]) {
-                 document.getElementById('sipReturn').value = investmentGoals[goal].defaultReturn;
-                 document.getElementById('sipYears').value = investmentGoals[goal].defaultYears;
-             }
-         });
-         });
-         
-         // Export Functions
-         function exportLoanReport() {
-         const { jsPDF } = window.jspdf;
-         const doc = new jsPDF();
-         doc.text('Loan Prepayment Report', 10, 10);
-         doc.text(document.getElementById('totalInterestSaved').textContent, 10, 20);
-         doc.text(document.getElementById('monthsReduced').textContent, 10, 30);
-         doc.save('loan_prepayment_report.pdf');
-         }
-         
-         function exportSIPReport() {
-         const { jsPDF } = window.jspdf;
-         const doc = new jsPDF();
-         doc.text('SIP Growth Report', 10, 10);
-         doc.text(document.getElementById('totalInvestment').textContent, 10, 20);
-         doc.text(document.getElementById('realReturns').textContent, 10, 30);
-         doc.save('sip_growth_report.pdf');
-         }
-      </script>
-      <!-- PDF Export Library -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-   </body>
+        </div>
+
+        <!-- Financial Information Dashboard -->
+        <div class="grid md:grid-cols-3 gap-6 mb-12">
+            <!-- Loan Rates Section -->
+            <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
+                <h2 class="text-2xl font-semibold mb-4 text-blue-700 dark:text-blue-300">
+                    <i class="fas fa-percentage mr-2"></i>Current Loan Rates
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-lg font-medium mb-2 text-blue-600 dark:text-blue-200">Home Loan Rates</h3>
+                        <div id="homeLoanRates" class="space-y-2">
+                            <!-- Data will be loaded from financialData.js -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2 text-blue-600 dark:text-blue-200">Personal Loan Rates</h3>
+                        <div id="personalLoanRates" class="space-y-2">
+                            <!-- Data will be loaded from financialData.js -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2 text-blue-600 dark:text-blue-200">Car Loan Rates</h3>
+                        <div id="carLoanRates" class="space-y-2">
+                            <!-- Data will be loaded from financialData.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Rates Section -->
+            <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
+                <h2 class="text-2xl font-semibold mb-4 text-yellow-600 dark:text-yellow-300">
+                    <i class="fas fa-chart-line mr-2"></i>Market Rates
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-lg font-medium mb-2 text-yellow-600 dark:text-yellow-200">Gold & Silver Rates (per 10g)</h3>
+                        <div id="preciousMetalRates" class="space-y-2">
+                            <!-- Data will be loaded from financialData.js -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2 text-yellow-600 dark:text-yellow-200">Currency Exchange</h3>
+                        <div id="currencyRates" class="space-y-2">
+                            <!-- Data will be loaded from financialData.js -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2 text-yellow-600 dark:text-yellow-200">Inflation & Indices</h3>
+                        <div id="inflationData" class="space-y-2">
+                            <!-- Data will be loaded from financialData.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investment Section -->
+            <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
+                <h2 class="text-2xl font-semibold mb-4 text-green-700 dark:text-green-300">
+                    <i class="fas fa-chart-pie mr-2"></i>Investment Trends
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-lg font-medium mb-2 text-green-600 dark:text-green-200">Stock Market</h3>
+                        <div id="stockMarketData" class="space-y-2">
+                            <!-- Data will be loaded from financialData.js -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2 text-green-600 dark:text-green-200">Top Mutual Funds</h3>
+                        <div id="mutualFundsData" class="space-y-2">
+                            <!-- Data will be loaded from financialData.js -->
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2 text-green-600 dark:text-green-200">Fixed Deposit Rates</h3>
+                        <div id="fdRates" class="space-y-2">
+                            <!-- Data will be loaded from financialData.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial News Section -->
+        <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800 mb-12">
+            <h2 class="text-2xl font-semibold mb-4 text-purple-700 dark:text-purple-300">
+                <i class="fas fa-newspaper mr-2"></i>Financial News Updates
+            </h2>
+            <div id="financialNews" class="grid md:grid-cols-3 gap-4">
+                <!-- News items will be loaded from financialData.js -->
+            </div>
+        </div>
+
+        <!-- Financial Tips Section -->
+        <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
+            <h2 class="text-2xl font-semibold mb-4 text-red-600 dark:text-red-300">
+                <i class="fas fa-lightbulb mr-2"></i>Financial Tips
+            </h2>
+            <div id="financialTips" class="grid md:grid-cols-2 gap-4">
+                <!-- Tips will be loaded from financialData.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js"></script>
+    <script src="./js/financialData.js"></script>
+    <script src="./js/script.js"></script>
+    
+</body>
 </html>
