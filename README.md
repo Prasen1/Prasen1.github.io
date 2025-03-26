@@ -1,2 +1,2 @@
-# Prasen1.github.io
-Advanced Financial Planning Tools
+#Advanced Financial Planning Tools
+##SIP and Loan Calculator
