@@ -18,9 +18,7 @@
             </button>
         </div>
         
-        <!-- Calculators Section -->
         <div class="grid md:grid-cols-2 gap-6 mb-12">
-            <!-- Loan Prepayment Calculator -->
             <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
                 <h2 class="text-2xl font-semibold mb-4 text-blue-700 dark:text-blue-300 flex items-center">
                     Loan Prepayment Calculator 
@@ -58,30 +56,62 @@
                             class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
                             min="1" max="50" required>
                     </div>
+
                     <div>
-                        <label for="extraPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Extra Monthly Payment (optional)</label>
-                        <input type="number" id="extraPayment" placeholder="E.g. 5000" 
-                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
-                            min="0" step="100">
+                        <label for="prepaymentType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prepayment Type</label>
+                        <select id="prepaymentType" class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            <option value="none">No Prepayment</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="one-time">One-Time (Lump Sum)</option>
+                        </select>
                     </div>
-                    <div>
-                        <label for="startPrepaymentMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Prepayment From (Month)</label>
-                        <input type="number" id="startPrepaymentMonth" placeholder="E.g. 12 (after 1 year)" 
-                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
-                            min="1" step="1" value="1">
+
+                    <div id="monthlyPrepaymentSection" class="hidden space-y-4">
+                        <div>
+                            <label for="extraPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Extra Monthly Payment</label>
+                            <input type="number" id="extraPayment" placeholder="E.g. 5000" 
+                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                                min="0" step="100">
+                        </div>
+                        <div>
+                            <label for="startPrepaymentMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Prepayment From (Month)</label>
+                            <input type="number" id="startPrepaymentMonth" placeholder="E.g. 1 (from first month)" 
+                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                                min="1" step="1" value="1">
+                        </div>
                     </div>
-                    <div>
-                        <label for="lumpSumAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lump Sum Payment Amount (optional)</label>
-                        <input type="number" id="lumpSumAmount" placeholder="E.g. 50000" 
-                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
-                            min="0" step="1000">
+
+                    <div id="yearlyPrepaymentSection" class="hidden space-y-4">
+                        <div>
+                            <label for="yearlyPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Extra Yearly Payment</label>
+                            <input type="number" id="yearlyPayment" placeholder="E.g. 60000"
+                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                min="0" step="1000">
+                        </div>
+                        <div>
+                            <label for="yearlyPaymentMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Make Payment in Month #</label>
+                            <input type="number" id="yearlyPaymentMonth" placeholder="E.g. 12 (at the end of each year)"
+                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                min="1" max="12" step="1" value="12">
+                        </div>
                     </div>
-                    <div>
-                        <label for="lumpSumMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lump Sum Payment Month (optional)</label>
-                        <input type="number" id="lumpSumMonth" placeholder="E.g. 24 (after 2 years)" 
-                            class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
-                            min="1" step="1">
+
+                    <div id="oneTimePrepaymentSection" class="hidden space-y-4">
+                        <div>
+                            <label for="lumpSumAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lump Sum Payment Amount</label>
+                            <input type="number" id="lumpSumAmount" placeholder="E.g. 50000" 
+                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                                min="0" step="1000">
+                        </div>
+                        <div>
+                            <label for="lumpSumMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lump Sum Payment Month</label>
+                            <input type="number" id="lumpSumMonth" placeholder="E.g. 24 (after 2 years)" 
+                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                                min="1" step="1">
+                        </div>
                     </div>
+                    
                     <div class="flex mobile-stack space-x-2">
                         <button id="loanCalculateBtn"
                             class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center">
@@ -133,7 +163,6 @@
                 </div>
             </div>
 
-            <!-- SIP Growth Calculator -->
             <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
                 <h2 class="text-2xl font-semibold mb-4 text-green-700 dark:text-green-300 flex items-center">
                     SIP Growth Calculator 
@@ -233,9 +262,7 @@
             </div>
         </div>
 
-        <!-- Financial Information Dashboard -->
         <div class="grid md:grid-cols-3 gap-6 mb-12">
-            <!-- Loan Rates Section -->
             <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
                 <h2 class="text-2xl font-semibold mb-4 text-blue-700 dark:text-blue-300">
                     <i class="fas fa-percentage mr-2"></i>Current Loan Rates
@@ -244,25 +271,21 @@
                     <div>
                         <h3 class="text-lg font-medium mb-2 text-blue-600 dark:text-blue-200">Home Loan Rates</h3>
                         <div id="homeLoanRates" class="space-y-2">
-                            <!-- Data will be loaded from financialData.js -->
-                        </div>
+                            </div>
                     </div>
                     <div>
                         <h3 class="text-lg font-medium mb-2 text-blue-600 dark:text-blue-200">Personal Loan Rates</h3>
                         <div id="personalLoanRates" class="space-y-2">
-                            <!-- Data will be loaded from financialData.js -->
-                        </div>
+                            </div>
                     </div>
                     <div>
                         <h3 class="text-lg font-medium mb-2 text-blue-600 dark:text-blue-200">Car Loan Rates</h3>
                         <div id="carLoanRates" class="space-y-2">
-                            <!-- Data will be loaded from financialData.js -->
-                        </div>
+                            </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Market Rates Section -->
             <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
                 <h2 class="text-2xl font-semibold mb-4 text-yellow-600 dark:text-yellow-300">
                     <i class="fas fa-chart-line mr-2"></i>Market Rates
@@ -271,25 +294,21 @@
                     <div>
                         <h3 class="text-lg font-medium mb-2 text-yellow-600 dark:text-yellow-200">Gold & Silver Rates (per 10g)</h3>
                         <div id="preciousMetalRates" class="space-y-2">
-                            <!-- Data will be loaded from financialData.js -->
-                        </div>
+                            </div>
                     </div>
                     <div>
                         <h3 class="text-lg font-medium mb-2 text-yellow-600 dark:text-yellow-200">Currency Exchange</h3>
                         <div id="currencyRates" class="space-y-2">
-                            <!-- Data will be loaded from financialData.js -->
-                        </div>
+                            </div>
                     </div>
                     <div>
                         <h3 class="text-lg font-medium mb-2 text-yellow-600 dark:text-yellow-200">Inflation & Indices</h3>
                         <div id="inflationData" class="space-y-2">
-                            <!-- Data will be loaded from financialData.js -->
-                        </div>
+                            </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Investment Section -->
             <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
                 <h2 class="text-2xl font-semibold mb-4 text-green-700 dark:text-green-300">
                     <i class="fas fa-chart-pie mr-2"></i>Investment Trends
@@ -298,47 +317,39 @@
                     <div>
                         <h3 class="text-lg font-medium mb-2 text-green-600 dark:text-green-200">Stock Market</h3>
                         <div id="stockMarketData" class="space-y-2">
-                            <!-- Data will be loaded from financialData.js -->
-                        </div>
+                            </div>
                     </div>
                     <div>
                         <h3 class="text-lg font-medium mb-2 text-green-600 dark:text-green-200">Top Mutual Funds</h3>
                         <div id="mutualFundsData" class="space-y-2">
-                            <!-- Data will be loaded from financialData.js -->
-                        </div>
+                            </div>
                     </div>
                     <div>
                         <h3 class="text-lg font-medium mb-2 text-green-600 dark:text-green-200">Fixed Deposit Rates</h3>
                         <div id="fdRates" class="space-y-2">
-                            <!-- Data will be loaded from financialData.js -->
-                        </div>
+                            </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Financial News Section -->
         <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800 mb-12">
             <h2 class="text-2xl font-semibold mb-4 text-purple-700 dark:text-purple-300">
                 <i class="fas fa-newspaper mr-2"></i>Financial News Updates
             </h2>
             <div id="financialNews" class="grid md:grid-cols-3 gap-4">
-                <!-- News items will be loaded from financialData.js -->
-            </div>
+                </div>
         </div>
 
-        <!-- Financial Tips Section -->
         <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
             <h2 class="text-2xl font-semibold mb-4 text-red-600 dark:text-red-300">
                 <i class="fas fa-lightbulb mr-2"></i>Financial Tips
             </h2>
             <div id="financialTips" class="grid md:grid-cols-2 gap-4">
-                <!-- Tips will be loaded from financialData.js -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js"></script>

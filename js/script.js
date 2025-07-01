@@ -38,7 +38,7 @@ function validateInputs(inputs) {
             input.classList.add('border-red-500');
             input.focus();
             isValid = false;
-        } else if (parseFloat(input.value) <= 0) {
+        } else if (parseFloat(input.value) < 0) { // Allow 0 for optional fields
             input.classList.add('border-red-500');
             input.focus();
             isValid = false;
@@ -48,6 +48,7 @@ function validateInputs(inputs) {
     }
     return isValid;
 }
+
 
 // Show loading state
 function showLoading(buttonId, spinnerId, btnTextId) {
@@ -115,6 +116,10 @@ function showLoanExample() {
     document.getElementById('loanAmount').value = loanScenarios[scenario].exampleAmount;
     document.getElementById('interestRate').value = loanScenarios[scenario].defaultInterest;
     document.getElementById('loanTenure').value = loanScenarios[scenario].defaultTenure;
+    
+    // Also show an example for monthly prepayment
+    document.getElementById('prepaymentType').value = 'monthly';
+    handlePrepaymentTypeChange(); // Update visibility
     document.getElementById('extraPayment').value = loanScenarios[scenario].exampleExtra;
 }
 
@@ -133,6 +138,11 @@ function clearLoanForm() {
     document.getElementById('interestRate').value = '';
     document.getElementById('loanTenure').value = '';
     document.getElementById('extraPayment').value = '';
+    document.getElementById('yearlyPayment').value = '';
+    document.getElementById('lumpSumAmount').value = '';
+    document.getElementById('lumpSumMonth').value = '';
+    document.getElementById('prepaymentType').value = 'none';
+    handlePrepaymentTypeChange();
     document.getElementById('loanResults').classList.add('hidden');
 }
 
@@ -156,6 +166,15 @@ if (localStorage.getItem('darkMode') === 'true') {
     document.body.classList.add('dark-mode');
 }
 
+// Handle Prepayment Type Change
+function handlePrepaymentTypeChange() {
+    const type = document.getElementById('prepaymentType').value;
+    document.getElementById('monthlyPrepaymentSection').classList.toggle('hidden', type !== 'monthly');
+    document.getElementById('yearlyPrepaymentSection').classList.toggle('hidden', type !== 'yearly');
+    document.getElementById('oneTimePrepaymentSection').classList.toggle('hidden', type !== 'one-time');
+}
+
+
 // Loan Calculation Function
 let loanChart = null;
 function calculateLoan() {
@@ -174,14 +193,19 @@ function calculateLoan() {
     
     setTimeout(() => {
         try {
+            const prepaymentType = document.getElementById('prepaymentType').value;
             let loanAmount = parseFloat(document.getElementById('loanAmount').value);
             let interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
             let loanTenure = parseFloat(document.getElementById('loanTenure').value) * 12;
-            let extraPayment = parseFloat(document.getElementById('extraPayment').value || 0);
-            let startPrepaymentMonth = parseInt(document.getElementById('startPrepaymentMonth').value || 1);
-            let lumpSumAmount = parseFloat(document.getElementById('lumpSumAmount').value || 0);
-            let lumpSumMonth = parseInt(document.getElementById('lumpSumMonth').value || 0);
             
+            // Get prepayment values
+            const extraPayment = prepaymentType === 'monthly' ? parseFloat(document.getElementById('extraPayment').value || 0) : 0;
+            const startPrepaymentMonth = prepaymentType === 'monthly' ? parseInt(document.getElementById('startPrepaymentMonth').value || 1) : 1;
+            const yearlyPayment = prepaymentType === 'yearly' ? parseFloat(document.getElementById('yearlyPayment').value || 0) : 0;
+            const yearlyPaymentMonth = prepaymentType === 'yearly' ? parseInt(document.getElementById('yearlyPaymentMonth').value || 12) : 12;
+            const lumpSumAmount = prepaymentType === 'one-time' ? parseFloat(document.getElementById('lumpSumAmount').value || 0) : 0;
+            const lumpSumMonth = prepaymentType === 'one-time' ? parseInt(document.getElementById('lumpSumMonth').value || 0) : 0;
+
             let emi = (loanAmount * interestRate * Math.pow(1 + interestRate, loanTenure)) / 
                     (Math.pow(1 + interestRate, loanTenure) - 1);
             let remainingBalance = loanAmount;
@@ -192,30 +216,46 @@ function calculateLoan() {
             let totalPrincipalPaid = 0;
             let originalMonths = loanTenure;
             let originalTotalInterest = (emi * originalMonths) - loanAmount;
-            let originalEmi = emi;
-            let lumpSumApplied = false;
-            let lumpSumDetails = "";
             
+            let prepaymentSummary = "";
+
             while (parseFloat(remainingBalance.toFixed(2)) > 0 && months < originalMonths * 2) {
                 months++;
                 let interest = remainingBalance * interestRate;
                 let principal = emi - interest;
+                
+                let currentPrepayment = 0;
                 let paymentType = "Regular";
-                
-                // Apply extra payment only after start month
-                if (months >= startPrepaymentMonth) {
-                    principal += extraPayment;
-                    paymentType = "Prepayment";
+                let rowClass = "hover:bg-gray-100 dark:hover:bg-gray-600";
+
+                // Apply prepayments based on selected type
+                switch (prepaymentType) {
+                    case 'monthly':
+                        if (extraPayment > 0 && months >= startPrepaymentMonth) {
+                            currentPrepayment = extraPayment;
+                            paymentType = "Prepayment";
+                            rowClass += " highlight-prepayment";
+                        }
+                        break;
+                    case 'yearly':
+                        // Use modulo to check for the payment month each year
+                        if (yearlyPayment > 0 && (months % 12 === yearlyPaymentMonth % 12 || (months % 12 === 0 && yearlyPaymentMonth === 12)) && months > 0) {
+                            currentPrepayment = yearlyPayment;
+                            paymentType = "Yearly Prepayment";
+                            rowClass += " highlight-lumpsum"; // Use lumpsum highlight for visibility
+                        }
+                        break;
+                    case 'one-time':
+                        if (lumpSumAmount > 0 && months === lumpSumMonth) {
+                            currentPrepayment = lumpSumAmount;
+                            paymentType = "Lump Sum";
+                            rowClass += " highlight-lumpsum";
+                        }
+                        break;
                 }
                 
-                // Apply lump sum payment in specified month
-                if (lumpSumMonth > 0 && months === lumpSumMonth) {
-                    principal += lumpSumAmount;
-                    paymentType = "Lump Sum";
-                    lumpSumApplied = true;
-                    lumpSumDetails = `Lump sum of ${formatCurrency(lumpSumAmount)} applied in month ${months}`;
-                }
-                
+                principal += currentPrepayment;
+
                 // Adjust principal if it would overpay the loan
                 if (principal > remainingBalance) {
                     principal = remainingBalance;
@@ -230,14 +270,6 @@ function calculateLoan() {
                     balanceData.push({x: months, y: Math.max(remainingBalance, 0)});
                 }
                 
-                // Add to full amortization table with appropriate highlighting
-                let rowClass = "hover:bg-gray-100 dark:hover:bg-gray-600";
-                if (paymentType === "Lump Sum") {
-                    rowClass += " highlight-lumpsum";
-                } else if (paymentType === "Prepayment") {
-                    rowClass += " highlight-prepayment";
-                }
-                
                 tableHTML += `<tr class="${rowClass}">
                     <td class='p-2'>${months}</td>
                     <td class='p-2'>${formatCurrency(Math.max(remainingBalance, 0))}</td>
@@ -250,39 +282,31 @@ function calculateLoan() {
             }
             
             let interestSaved = Math.max(originalTotalInterest - totalInterestPaid, 0);
-            
+            let monthsReduced = originalMonths - months;
+
             saveCalculation('loan', {
                 loanAmount,
                 interestRate: document.getElementById('interestRate').value,
                 loanTenure: document.getElementById('loanTenure').value,
+                prepaymentType,
                 extraPayment,
-                startPrepaymentMonth,
+                yearlyPayment,
                 lumpSumAmount,
-                lumpSumMonth,
                 interestSaved,
-                monthsReduced: originalMonths - months
+                monthsReduced
             });
             
             // Update results
             document.getElementById('loanTable').querySelector('tbody').innerHTML = tableHTML;
             document.getElementById('originalLoanTerms').innerHTML = 
                 `Original Loan Terms: ${formatCurrency(loanAmount)} at ${formatPercentage(document.getElementById('interestRate').value)} ` +
-                `for ${document.getElementById('loanTenure').value} years (EMI: ${formatCurrency(originalEmi)})`;
+                `for ${document.getElementById('loanTenure').value} years (EMI: ${formatCurrency(emi)})`;
             document.getElementById('totalInterestSaved').innerHTML = 
                 `Total Interest Saved: ${formatCurrency(interestSaved)}`;
             document.getElementById('monthsReduced').innerHTML = 
-                `Months Reduced: ${originalMonths - months} (${Math.floor((originalMonths - months)/12)} years ${(originalMonths - months)%12} months)`;
+                `Months Reduced: ${monthsReduced} (${Math.floor(monthsReduced/12)} years ${monthsReduced%12} months)`;
             
-            let newTermsText = `New Loan Terms: Paid off in ${Math.floor(months/12)} years ${months%12} months ` +
-                `with ${extraPayment > 0 ? formatCurrency(emi + extraPayment) : formatCurrency(emi)} monthly payment`;
-            
-            if (lumpSumApplied) {
-                newTermsText += `<br>${lumpSumDetails}`;
-            }
-            
-            if (startPrepaymentMonth > 1) {
-                newTermsText += `<br>Prepayments started from month ${startPrepaymentMonth}`;
-            }
+            let newTermsText = `New Loan Terms: Paid off in ${Math.floor(months/12)} years ${months%12} months.`;
             
             document.getElementById('newLoanTerms').innerHTML = newTermsText;
             document.getElementById('loanResults').classList.remove('hidden');
@@ -565,7 +589,6 @@ function exportLoanReport() {
     doc.text(`Loan Amount: ${document.getElementById('loanAmount').value}`, 20, 35);
     doc.text(`Interest Rate: ${document.getElementById('interestRate').value}%`, 20, 45);
     doc.text(`Loan Tenure: ${document.getElementById('loanTenure').value} years`, 20, 55);
-    doc.text(`Extra Payment: ${document.getElementById('extraPayment').value || 0}`, 20, 65);
     
     doc.text('Summary:', 14, 80);
     doc.text(document.getElementById('originalLoanTerms').textContent, 20, 90);
@@ -621,7 +644,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('loanExampleBtn').addEventListener('click', showLoanExample);
     document.getElementById('sipExampleBtn').addEventListener('click', showSIPExample);
     document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
-    
+    document.getElementById('prepaymentType').addEventListener('change', handlePrepaymentTypeChange);
+
     document.getElementById('loanScenario').addEventListener('change', function() {
         const scenario = this.value;
         if (loanScenarios[scenario]) {
@@ -638,4 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('inflationRate').value = investmentGoals[goal].exampleInflation;
         }
     });
+    
+    // Initial call to set the correct prepayment section visibility
+    handlePrepaymentTypeChange();
 });
