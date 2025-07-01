@@ -196,7 +196,7 @@ function calculateLoan() {
             let lumpSumApplied = false;
             let lumpSumDetails = "";
             
-            while (remainingBalance > 0 && months < originalMonths * 2) {
+            while (parseFloat(remainingBalance.toFixed(2)) > 0 && months < originalMonths * 2) {
                 months++;
                 let interest = remainingBalance * interestRate;
                 let principal = emi - interest;
