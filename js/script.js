@@ -216,6 +216,7 @@ function calculateLoan() {
             let totalPrincipalPaid = 0;
             let originalMonths = loanTenure;
             let originalTotalInterest = (emi * originalMonths) - loanAmount;
+            let originalTotalLoan = loanAmount + originalTotalInterest;
             
             let prepaymentSummary = "";
 
@@ -283,6 +284,7 @@ function calculateLoan() {
             
             let interestSaved = Math.max(originalTotalInterest - totalInterestPaid, 0);
             let monthsReduced = originalMonths - months;
+            let totalLoan = totalPrincipalPaid + totalInterestPaid;
 
             saveCalculation('loan', {
                 loanAmount,
@@ -293,7 +295,11 @@ function calculateLoan() {
                 yearlyPayment,
                 lumpSumAmount,
                 interestSaved,
-                monthsReduced
+                monthsReduced,
+                originalTotalInterest,
+                originalTotalLoan,
+                totalInterestPaid,
+                totalLoan,
             });
             
             // Update results
@@ -301,6 +307,14 @@ function calculateLoan() {
             document.getElementById('originalLoanTerms').innerHTML = 
                 `Original Loan Terms: ${formatCurrency(loanAmount)} at ${formatPercentage(document.getElementById('interestRate').value)} ` +
                 `for ${document.getElementById('loanTenure').value} years (EMI: ${formatCurrency(emi)})`;
+            document.getElementById('totalOriginalInterestPaid').innerHTML =
+                `Original Total Interest Paid: ${formatCurrency(originalTotalInterest)}`;
+            document.getElementById('totalOriginalLoan').innerHTML = 
+                `Original Total Loan Amount: ${formatCurrency(originalTotalLoan)}`;
+            document.getElementById('totalInterestPaid').innerHTML = 
+                `New Total Interest Paid: ${formatCurrency(totalInterestPaid)}`;
+            document.getElementById('totalLoan').innerHTML = 
+                `New Total Loan Amount: ${formatCurrency(totalLoan)}`;
             document.getElementById('totalInterestSaved').innerHTML = 
                 `Total Interest Saved: ${formatCurrency(interestSaved)}`;
             document.getElementById('monthsReduced').innerHTML = 
