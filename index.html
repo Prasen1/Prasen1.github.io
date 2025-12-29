@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-blue-100 text-gray-900 min-h-screen">
-    <div class="container mx-auto p-6">
+    <div id="mainContent" class="container mx-auto p-6">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-4xl font-extrabold text-blue-800 dark:text-blue-300">Advanced Financial Planning Tools</h1>
-            <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
-                <i class="fas fa-moon dark:hidden"></i>
-                <i class="fas fa-sun hidden dark:inline"></i>
+            <button id="darkModeToggle" class="p-3 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 shadow-md hover:shadow-lg" title="Toggle dark/light mode">
+                <i class="fas fa-moon dark:hidden text-gray-700 text-lg"></i>
+                <i class="fas fa-sun hidden dark:inline text-yellow-300 text-lg"></i>
             </button>
         </div>
         
@@ -57,61 +57,45 @@
                             min="1" max="50" required>
                     </div>
 
-                    <div>
-                        <label for="prepaymentType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prepayment Type</label>
-                        <select id="prepaymentType" class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                            <option value="none">No Prepayment</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
-                            <option value="one-time">One-Time (Lump Sum)</option>
-                        </select>
-                    </div>
-
-                    <div id="monthlyPrepaymentSection" class="hidden space-y-4">
-                        <div>
-                            <label for="extraPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Extra Monthly Payment</label>
-                            <input type="number" id="extraPayment" placeholder="E.g. 5000" 
-                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
-                                min="0" step="100">
-                        </div>
-                        <div>
-                            <label for="startPrepaymentMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Prepayment From (Month)</label>
-                            <input type="number" id="startPrepaymentMonth" placeholder="E.g. 1 (from first month)" 
-                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
-                                min="1" step="1" value="1">
+                    <!-- Interest Rate Changes Section -->
+                    <div class="mt-4">
+                        <button type="button" id="toggleRateChanges" class="w-full text-left p-3 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors">
+                            <span class="font-semibold text-blue-800 dark:text-blue-200">▼ Interest Rate Changes (Advanced)</span>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Add multiple interest rate periods if rate changes during loan tenure</p>
+                        </button>
+                        <div id="rateChangesSection" class="hidden mt-2 space-y-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <button type="button" id="addRateChange" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm">
+                                + Add Rate Change
+                            </button>
+                            <div id="rateChangesList"></div>
                         </div>
                     </div>
 
-                    <div id="yearlyPrepaymentSection" class="hidden space-y-4">
-                        <div>
-                            <label for="yearlyPayment" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Extra Yearly Payment</label>
-                            <input type="number" id="yearlyPayment" placeholder="E.g. 60000"
-                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                min="0" step="1000">
-                        </div>
-                        <div>
-                            <label for="yearlyPaymentMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Make Payment in Month #</label>
-                            <input type="number" id="yearlyPaymentMonth" placeholder="E.g. 12 (at the end of each year)"
-                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                min="1" max="12" step="1" value="12">
+                    <!-- Enhanced Multiple Prepayments Section -->
+                    <div class="mt-4">
+                        <button type="button" id="toggleMultiplePrepayments" class="w-full text-left p-3 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors">
+                            <span class="font-semibold text-green-800 dark:text-green-200">▼ Multiple Prepayments (Advanced)</span>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Add multiple prepayments of different types with custom strategies</p>
+                        </button>
+                        <div id="multiplePrepaymentsSection" class="hidden mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <div class="flex space-x-2 mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
+                                <button type="button" data-prepayment-tab="monthly" class="tab-button active px-4 py-2 rounded text-sm font-medium transition-colors">
+                                    Monthly
+                                </button>
+                                <button type="button" data-prepayment-tab="yearly" class="tab-button px-4 py-2 rounded text-sm font-medium transition-colors">
+                                    Yearly
+                                </button>
+                                <button type="button" data-prepayment-tab="oneTime" class="tab-button px-4 py-2 rounded text-sm font-medium transition-colors">
+                                    One-Time
+                                </button>
+                            </div>
+                            <button type="button" id="addMultiplePrepayment" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors text-sm mb-2">
+                                + Add Prepayment
+                            </button>
+                            <div id="multiplePrepaymentsLis"></div>
                         </div>
                     </div>
 
-                    <div id="oneTimePrepaymentSection" class="hidden space-y-4">
-                        <div>
-                            <label for="lumpSumAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lump Sum Payment Amount</label>
-                            <input type="number" id="lumpSumAmount" placeholder="E.g. 50000" 
-                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
-                                min="0" step="1000">
-                        </div>
-                        <div>
-                            <label for="lumpSumMonth" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lump Sum Payment Month</label>
-                            <input type="number" id="lumpSumMonth" placeholder="E.g. 24 (after 2 years)" 
-                                class="w-full p-3 border-2 border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
-                                min="1" step="1">
-                        </div>
-                    </div>
-                    
                     <div class="flex mobile-stack space-x-2">
                         <button id="loanCalculateBtn"
                             class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center">
@@ -128,6 +112,10 @@
                             class="flex-1 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
                             Export Report
                         </button>
+                        <button id="saveLoanScenario"
+                            class="flex-1 bg-gradient-to-r from-yellow-500 to-amber-500 text-white p-3 rounded-lg hover:from-yellow-600 hover:to-amber-600 transition-all duration-200 font-bold shadow-lg hover:shadow-xl border-2 border-yellow-400 dark:border-yellow-600">
+                            <i class="fas fa-save mr-2"></i>Save Scenario
+                        </button>
                         <button id="loanExampleBtn"
                             class="flex-1 bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
                             Show Example
@@ -135,7 +123,9 @@
                     </div>
                 </div>
                 <div id="loanResults" class="mt-6 hidden">
-                    <canvas id="loanChart" class="mt-4" aria-label="Loan repayment chart" role="img"></canvas>
+                    <div class="chart-container mt-4">
+                        <canvas id="loanChart" aria-label="Loan repayment chart" role="img"></canvas>
+                    </div>
                     <div class="mt-4 bg-blue-50 p-4 rounded-lg dark:bg-blue-900">
                         <h3 class="text-lg font-semibold mb-2 text-blue-800 dark:text-blue-200">Loan Summary</h3>
                         <p id="originalLoanTerms" class="text-gray-700 dark:text-gray-300"></p>
@@ -180,6 +170,21 @@
                     </span>
                 </h2>
                 <div class="space-y-4">
+                    <!-- SIP Mode Selector -->
+                    <div class="bg-green-50 dark:bg-green-900 p-3 rounded-lg">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Calculation Mode:</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="sipMode" value="forward" checked class="mr-2">
+                                <span class="text-sm">Calculate Returns (I invest ₹X, I get ₹?)</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="sipMode" value="goal" class="mr-2">
+                                <span class="text-sm">Goal Planning (I need ₹X, invest ₹?)</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <select id="investmentGoal" class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                         <option value="">Select Investment Goal</option>
                         <option value="retirement">Retirement Planning</option>
@@ -187,34 +192,50 @@
                         <option value="home">Home Purchase</option>
                         <option value="custom">Custom Goal</option>
                     </select>
+
+                    <!-- Goal Planning Inputs (shown when mode=goal) -->
+                    <div id="goalPlanningInputs" class="hidden space-y-4 p-3 bg-yellow-50 dark:bg-yellow-900 rounded-lg">
+                        <div>
+                            <label for="targetAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Amount (₹)</label>
+                            <input type="number" id="targetAmount" placeholder="E.g. 10000000 (1 Crore)"
+                                class="w-full p-3 border-2 border-yellow-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                min="1000" step="1000">
+                        </div>
+                    </div>
+
+                    <!-- Forward Calculation Inputs (shown when mode=forward) -->
+                    <div id="forwardCalculationInputs" class="space-y-4">
                     <div>
-                        <label for="sipAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly SIP</label>
+                        <label for="sipAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly SIP (₹)</label>
                         <input type="number" id="sipAmount" placeholder="E.g. 10000" 
                             class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
                             min="100" step="100" required>
                     </div>
+                    </div>
+
+                    <!-- Common inputs for both modes -->
                     <div>
                         <label for="sipReturn" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expected Return (%)</label>
-                        <input type="number" id="sipReturn" placeholder="E.g. 12" 
-                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                        <input type="number" id="sipReturn" placeholder="E.g. 12"
+                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                             min="0" max="30" step="0.1" required>
                     </div>
                     <div>
                         <label for="sipYears" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Investment Duration (years)</label>
-                        <input type="number" id="sipYears" placeholder="E.g. 15" 
-                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                        <input type="number" id="sipYears" placeholder="E.g. 15"
+                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                             min="1" max="50" required>
                     </div>
                     <div>
                         <label for="sipStepUp" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Annual Step-Up (%) (optional)</label>
-                        <input type="number" id="sipStepUp" placeholder="E.g. 10" 
-                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                        <input type="number" id="sipStepUp" placeholder="E.g. 10"
+                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                             min="0" max="100" step="0.1">
                     </div>
                     <div>
                         <label for="inflationRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Inflation Rate (%) (optional)</label>
-                        <input type="number" id="inflationRate" placeholder="E.g. 6" 
-                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+                        <input type="number" id="inflationRate" placeholder="E.g. 6"
+                            class="w-full p-3 border-2 border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                             min="0" max="20" step="0.1">
                     </div>
                     <div class="flex mobile-stack space-x-2">
@@ -233,6 +254,10 @@
                             class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
                             Export Report
                         </button>
+                        <button id="saveSIPScenario"
+                            class="flex-1 bg-gradient-to-r from-yellow-500 to-amber-500 text-white p-3 rounded-lg hover:from-yellow-600 hover:to-amber-600 transition-all duration-200 font-bold shadow-lg hover:shadow-xl border-2 border-yellow-400 dark:border-yellow-600">
+                            <i class="fas fa-save mr-2"></i>Save Scenario
+                        </button>
                         <button id="sipExampleBtn"
                             class="flex-1 bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
                             Show Example
@@ -240,7 +265,9 @@
                     </div>
                 </div>
                 <div id="sipResults" class="mt-6 hidden">
-                    <canvas id="sipChart" class="mt-4" aria-label="SIP growth chart" role="img"></canvas>
+                    <div class="chart-container mt-4">
+                        <canvas id="sipChart" aria-label="SIP growth chart" role="img"></canvas>
+                    </div>
                     <div class="mt-4 bg-green-50 p-4 rounded-lg dark:bg-green-900">
                         <h3 class="text-lg font-semibold mb-2 text-green-800 dark:text-green-200">Investment Summary</h3>
                         <p id="totalInvestment" class="text-gray-700 dark:text-gray-300"></p>
@@ -264,102 +291,296 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="grid md:grid-cols-3 gap-6 mb-12">
-            <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
-                <h2 class="text-2xl font-semibold mb-4 text-blue-700 dark:text-blue-300">
-                    <i class="fas fa-percentage mr-2"></i>Current Loan Rates
-                </h2>
-                <div class="space-y-4">
-                    <div>
-                        <h3 class="text-lg font-medium mb-2 text-blue-600 dark:text-blue-200">Home Loan Rates</h3>
-                        <div id="homeLoanRates" class="space-y-2">
-                            </div>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-medium mb-2 text-blue-600 dark:text-blue-200">Personal Loan Rates</h3>
-                        <div id="personalLoanRates" class="space-y-2">
-                            </div>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-medium mb-2 text-blue-600 dark:text-blue-200">Car Loan Rates</h3>
-                        <div id="carLoanRates" class="space-y-2">
-                            </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
-                <h2 class="text-2xl font-semibold mb-4 text-yellow-600 dark:text-yellow-300">
-                    <i class="fas fa-chart-line mr-2"></i>Market Rates
-                </h2>
-                <div class="space-y-4">
-                    <div>
-                        <h3 class="text-lg font-medium mb-2 text-yellow-600 dark:text-yellow-200">Gold & Silver Rates (per 10g)</h3>
-                        <div id="preciousMetalRates" class="space-y-2">
-                            </div>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-medium mb-2 text-yellow-600 dark:text-yellow-200">Currency Exchange</h3>
-                        <div id="currencyRates" class="space-y-2">
-                            </div>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-medium mb-2 text-yellow-600 dark:text-yellow-200">Inflation & Indices</h3>
-                        <div id="inflationData" class="space-y-2">
-                            </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
-                <h2 class="text-2xl font-semibold mb-4 text-green-700 dark:text-green-300">
-                    <i class="fas fa-chart-pie mr-2"></i>Investment Trends
-                </h2>
-                <div class="space-y-4">
-                    <div>
-                        <h3 class="text-lg font-medium mb-2 text-green-600 dark:text-green-200">Stock Market</h3>
-                        <div id="stockMarketData" class="space-y-2">
-                            </div>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-medium mb-2 text-green-600 dark:text-green-200">Top Mutual Funds</h3>
-                        <div id="mutualFundsData" class="space-y-2">
-                            </div>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-medium mb-2 text-green-600 dark:text-green-200">Fixed Deposit Rates</h3>
-                        <div id="fdRates" class="space-y-2">
-                            </div>
+                <!-- Goal Planning Results -->
+                <div id="goalPlanningResults" class="mt-6 hidden">
+                    <div class="mt-4 bg-yellow-50 p-4 rounded-lg dark:bg-yellow-900">
+                        <h3 class="text-lg font-semibold mb-2 text-yellow-800 dark:text-yellow-200">Goal Planning Results</h3>
+                        <div class="space-y-2">
+                            <p id="requiredSIP" class="text-gray-700 dark:text-gray-300 text-lg font-bold"></p>
+                            <p id="totalInvestmentGoal" class="text-gray-700 dark:text-gray-300"></p>
+                            <p id="achievedAmount" class="text-gray-700 dark:text-gray-300"></p>
+                            <p id="realValueGoal" class="text-gray-700 dark:text-gray-300"></p>
+                            <p id="successProbability" class="text-gray-700 dark:text-gray-300 text-sm italic"></p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800 mb-12">
-            <h2 class="text-2xl font-semibold mb-4 text-purple-700 dark:text-purple-300">
-                <i class="fas fa-newspaper mr-2"></i>Financial News Updates
+        <!-- Scenario Comparison Section -->
+        <div class="mt-12 bg-white p-6 rounded-xl shadow-2xl dark:bg-gray-800">
+            <h2 class="text-2xl font-semibold mb-4 text-orange-600 dark:text-orange-300">
+                <i class="fas fa-balance-scale mr-2"></i>Scenario Comparison
             </h2>
-            <div id="financialNews" class="grid md:grid-cols-3 gap-4">
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                Save multiple loan or SIP scenarios and compare them side-by-side to make better financial decisions.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-blue-600 dark:text-blue-300">Saved Loan Scenarios</h3>
+                    <div id="savedLoanScenarios" class="space-y-2 mb-4">
+                        <p class="text-gray-500 text-sm">No saved loan scenarios</p>
+                    </div>
                 </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-green-600 dark:text-green-300">Saved SIP Scenarios</h3>
+                    <div id="savedSIPScenarios" class="space-y-2 mb-4">
+                        <p class="text-gray-500 text-sm">No saved SIP scenarios</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-200">Select Scenarios to Compare</h3>
+                <div class="flex items-center space-x-6 mb-4">
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 p-2 rounded-lg transition-colors">
+                        <input type="radio" name="comparisonType" value="loan" checked class="mr-2 w-4 h-4 text-orange-600 focus:ring-orange-500">
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-300">Loan Scenarios</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 p-2 rounded-lg transition-colors">
+                        <input type="radio" name="comparisonType" value="sip" class="mr-2 w-4 h-4 text-orange-600 focus:ring-orange-500">
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-300">SIP Scenarios</span>
+                    </label>
+                </div>
+                <div id="comparisonScenarioSelectors" class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Scenario 1</label>
+                        <select id="scenarioSelect1" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-gray-900 bg-white dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                            <option value="">Select a loan scenario...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Scenario 2</label>
+                        <select id="scenarioSelect2" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-gray-900 bg-white dark:bg-gray-600 dark:border-gray-500 dark:text-white">
+                            <option value="">Select a loan scenario...</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="compareScenarios" class="w-full bg-gradient-to-r from-orange-500 to-red-500 p-4 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 font-extrabold text-xl shadow-xl hover:shadow-2xl transform hover:scale-105 border-2 border-orange-300 dark:border-orange-700" style="color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
+                    <i class="fas fa-balance-scale mr-2 text-xl"></i>Compare Selected Scenarios
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison View (Hidden by default) -->
+    <div id="comparisonView" class="hidden container mx-auto px-4 py-12">
+        <div class="bg-white p-6 rounded-xl shadow-2xl dark:bg-gray-800">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-orange-600 dark:text-orange-300">
+                    <i class="fas fa-balance-scale mr-2"></i>Scenario Comparison
+                </h2>
+                <button id="closeComparison" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
+                    <i class="fas fa-times mr-2"></i>Close
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-4">Comparison Table</h3>
+                <div class="overflow-auto">
+                    <div id="comparisonTable"></div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold mb-4">Comparison Chart</h3>
+                <canvas id="comparisonChart" class="w-full" aria-label="Scenario comparison chart" role="img"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Financial Dashboard -->
+    <div id="financialDashboard" class="container mx-auto px-4 py-12">
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 rounded-xl shadow-2xl mb-8">
+            <h2 class="text-3xl font-extrabold text-white mb-2">
+                <i class="fas fa-chart-line mr-2"></i>Live Financial Dashboard
+            </h2>
+            <p class="text-indigo-100 mb-3">Real-time market data, rates, and investment insights</p>
+            <div class="bg-white dark:bg-gray-800 bg-opacity-20 dark:bg-opacity-30 rounded-lg p-3 mb-3 border border-white border-opacity-30">
+                <p class="text-sm text-white">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <span class="font-semibold">Data Sources:</span>
+                    <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-0.5 rounded text-xs font-semibold">LIVE</span> = Real-time API data •
+                    <span class="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-0.5 rounded text-xs font-semibold">SIMULATED</span> = Realistic demo data (no API available)
+                </p>
+            </div>
+            <button id="refreshDashboard" class="mt-2 bg-white text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 transition-colors font-semibold">
+                <i class="fas fa-sync-alt mr-2"></i>Refresh Data
+            </button>
         </div>
 
-        <div class="bg-white p-6 rounded-xl shadow-2xl hover:shadow-xl transition-all duration-300 dark:bg-gray-800">
-            <h2 class="text-2xl font-semibold mb-4 text-red-600 dark:text-red-300">
-                <i class="fas fa-lightbulb mr-2"></i>Financial Tips
-            </h2>
-            <div id="financialTips" class="grid md:grid-cols-2 gap-4">
+        <!-- Market Indices -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">NIFTY 50</h3>
+                    <i class="fas fa-chart-line text-2xl text-blue-600"></i>
                 </div>
+                <div id="niftyPrice" class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    <i class="fas fa-spinner fa-spin text-gray-400"></i>
+                </div>
+                <div id="niftyChange" class="text-sm"></div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-2" id="niftyUpdate">Loading...</div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Gold (24K)</h3>
+                    <i class="fas fa-coins text-2xl text-yellow-600"></i>
+                </div>
+                <div id="goldPrice" class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    <i class="fas fa-spinner fa-spin text-gray-400"></i>
+                </div>
+                <div id="goldChange" class="text-sm"></div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-2">Per 10 grams</div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">USD/INR</h3>
+                    <i class="fas fa-dollar-sign text-2xl text-green-600"></i>
+                </div>
+                <div id="usdPrice" class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    <i class="fas fa-spinner fa-spin text-gray-400"></i>
+                </div>
+                <div id="usdChange" class="text-sm"></div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-2" id="usdUpdate">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Historical Charts -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    <i class="fas fa-chart-area mr-2 text-blue-600"></i>Market Trend (30 Days)
+                </h3>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="marketTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    <i class="fas fa-chart-bar mr-2 text-yellow-600"></i>Gold vs Silver Trend
+                </h3>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="metalsTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reference Rates -->
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border-l-4 border-red-500">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-percentage mr-2 text-red-600"></i>Indicative Loan Rates
+                    </h3>
+                    <span class="text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded font-semibold">
+                        REFERENCE
+                    </span>
+                </div>
+                <div id="loanRates" class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-2 border-red-300 dark:border-red-700">
+                        <div>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Home Loan</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">SBI, HDFC, ICICI</span>
+                        </div>
+                        <span class="font-bold text-red-600 dark:text-red-400">8.50% - 9.65%</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-2 border-red-300 dark:border-red-700">
+                        <div>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Personal Loan</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">Unsecured</span>
+                        </div>
+                        <span class="font-bold text-red-600 dark:text-red-400">10.75% - 21.00%</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-2 border-red-300 dark:border-red-700">
+                        <div>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Car Loan</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">New vehicle</span>
+                        </div>
+                        <span class="font-bold text-red-600 dark:text-red-400">8.75% - 11.25%</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-2 border-red-300 dark:border-red-700">
+                        <div>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Education Loan</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">₹4L+ loans</span>
+                        </div>
+                        <span class="font-bold text-red-600 dark:text-red-400">8.50% - 11.50%</span>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-30 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                    <p class="text-xs text-gray-700 dark:text-gray-300 font-medium mb-1">
+                        <i class="fas fa-exclamation-triangle mr-1 text-yellow-600"></i>Important Disclaimer
+                    </p>
+                    <p class="text-xs text-gray-600 dark:text-gray-400">
+                        Indicative rates as of Jan 2025. Actual rates vary by lender, credit score, loan amount, and tenure.
+                        <span class="font-semibold">Contact banks directly for current offers.</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border-l-4 border-green-500">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-chart-pie mr-2 text-green-600"></i>Historical SIP Returns
+                    </h3>
+                    <span class="text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded font-semibold">
+                        REFERENCE
+                    </span>
+                </div>
+                <div id="sipReturns" class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-2 border-green-300 dark:border-green-700">
+                        <div>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Large Cap Equity</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">10-year avg</span>
+                        </div>
+                        <span class="font-bold text-green-600 dark:text-green-400">~11% - 13%</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-2 border-green-300 dark:border-green-700">
+                        <div>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Mid/Small Cap</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">Higher volatility</span>
+                        </div>
+                        <span class="font-bold text-green-600 dark:text-green-400">~13% - 16%</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-2 border-green-300 dark:border-green-700">
+                        <div>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Hybrid Funds</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">Equity + Debt</span>
+                        </div>
+                        <span class="font-bold text-green-600 dark:text-green-400">~9% - 11%</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border-l-2 border-green-300 dark:border-green-700">
+                        <div>
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Index Funds</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 block">Nifty 50/Sensex</span>
+                        </div>
+                        <span class="font-bold text-green-600 dark:text-green-400">~10% - 12%</span>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-30 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                    <p class="text-xs text-gray-700 dark:text-gray-300 font-medium mb-1">
+                        <i class="fas fa-exclamation-triangle mr-1 text-yellow-600"></i>Important Disclaimer
+                    </p>
+                    <p class="text-xs text-gray-600 dark:text-gray-400">
+                        Historical averages from 2015-2025. <span class="font-semibold">Past performance doesn't guarantee future returns.</span>
+                        Markets are subject to risk. Consult a financial advisor before investing.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js"></script>
-    <script src="./js/financialData.js"></script>
-    <script src="./js/script.js"></script>
-    
+
+    <!-- ES6 Module Scripts -->
+    <script type="module" src="./js/script.js"></script>
+
 </body>
 </html>

@@ -29,27 +29,324 @@
         width: 100% !important;
         margin-bottom: 1rem;
     }
+
+    /* Make header stack vertically on mobile */
+    .flex.justify-between.items-center {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+
+    /* Reduce heading size on mobile */
+    h1 {
+        font-size: 1.5rem !important;
+        line-height: 2rem !important;
+    }
+
+    h2 {
+        font-size: 1.25rem !important;
+    }
+
+    /* Ensure tables don't overflow */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Make sure containers don't overflow */
+    .container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        max-width: 100vw;
+    }
+
+    /* Stack grid layouts on mobile */
+    .grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Reduce padding on cards */
+    .p-6 {
+        padding: 1rem !important;
+    }
+
+    /* Make buttons full width on mobile for better UX */
+    button {
+        max-width: 100%;
+        word-wrap: break-word;
+    }
+
+    /* Ensure chart containers are responsive */
+    canvas {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* Fix tooltip width on mobile */
+    .tooltip .tooltiptext {
+        width: 200px;
+        margin-left: -100px;
+    }
+
+    /* Fix long button text */
+    #compareScenarios {
+        font-size: 0.875rem !important;
+        padding: 0.75rem !important;
+    }
+
+    /* Make dashboard info box more compact on mobile */
+    .bg-opacity-20 p {
+        font-size: 0.75rem !important;
+    }
+
+    /* Ensure all text wraps properly */
+    * {
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Fix select dropdowns on mobile */
+    select {
+        max-width: 100%;
+        font-size: 1rem;
+    }
+
+    /* Fix input fields on mobile */
+    input, textarea {
+        max-width: 100%;
+        font-size: 1rem;
+    }
+
+    /* Ensure flex containers don't force width */
+    .flex {
+        flex-wrap: wrap;
+    }
+
+    /* Fix space-x classes that might cause overflow */
+    .space-x-2 > * {
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .space-x-4 > * {
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .space-x-6 > * {
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Ensure badges don't cause overflow */
+    span[class*="bg-"] {
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Fix status badges specifically */
+    .text-xs {
+        white-space: normal !important;
+    }
+
+    /* Ensure info boxes are responsive */
+    .bg-opacity-20, .bg-opacity-30 {
+        padding: 0.5rem !important;
+    }
+
+    /* Make sure all cards are constrained */
+    .rounded-xl, .rounded-lg {
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    /* Fix potential overflow from gradients or shadows */
+    .shadow-2xl, .shadow-xl, .shadow-lg {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    }
 }
+/* Smooth transitions for theme switching */
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* Prevent horizontal scrolling on all containers */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* Constrain all major containers */
+.container {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Ensure images and media don't overflow */
+img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Fix pre and code blocks that might cause horizontal scroll */
+pre, code {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
 .dark-mode {
-    background-color: #1a202c;
-    color: #e2e8f0;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    color: #f3f4f6;
+}
+
+/* Add transitions to all theme-sensitive elements */
+.bg-white,
+.text-gray-900,
+.border-blue-200,
+.border-green-200,
+.bg-blue-50,
+.bg-green-50,
+.bg-blue-100,
+.bg-green-100 {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 .dark-mode .bg-white {
-    background-color: #07080a !important;
-    color: #767e87 !important;
+    background-color: #1f2937 !important;
+    color: #f3f4f6 !important;
 }
 .dark-mode .text-gray-900 {
-    color: #e2e8f0 !important;
+    color: #f9fafb !important;
+}
+.dark-mode .text-gray-700 {
+    color: #e5e7eb !important;
+}
+.dark-mode .text-gray-600 {
+    color: #d1d5db !important;
+}
+.dark-mode .text-gray-500 {
+    color: #9ca3af !important;
+}
+.dark-mode .text-gray-400 {
+    color: #9ca3af !important;
+}
+.dark-mode .text-gray-300 {
+    color: #d1d5db !important;
 }
 .dark-mode .border-blue-200, .dark-mode .border-green-200 {
-    border-color: #4a5568 !important;
+    border-color: #4b5563 !important;
 }
 .dark-mode .bg-blue-50, .dark-mode .bg-green-50 {
-    background-color: #2a4365 !important;
+    background-color: #1e3a5f !important;
 }
 .dark-mode .bg-blue-100, .dark-mode .bg-green-100 {
     background-color: #2c5282 !important;
 }
+.dark-mode .bg-blue-900 {
+    background-color: #1e3a8a !important;
+}
+.dark-mode .bg-green-900 {
+    background-color: #14532d !important;
+}
+.dark-mode label {
+    color: #d1d5db !important;
+}
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+.dark-mode input::placeholder {
+    color: #9ca3af !important;
+}
+
+/* Button styling in dark mode */
+.dark-mode button {
+    color: #f9fafb;
+}
+
+/* Table text in dark mode */
+.dark-mode table {
+    color: #e5e7eb;
+}
+
+.dark-mode th {
+    background-color: #1e3a8a !important;
+    color: #f3f4f6 !important;
+}
+
+.dark-mode td {
+    color: #e5e7eb !important;
+}
+
+/* Heading colors in dark mode */
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6 {
+    color: #f9fafb !important;
+}
+
+/* Link colors in dark mode */
+.dark-mode a {
+    color: #60a5fa;
+}
+
+.dark-mode a:hover {
+    color: #93c5fd;
+}
+
+/* Card backgrounds in dark mode */
+.dark-mode .bg-gray-800 {
+    background-color: #1f2937 !important;
+}
+
+.dark-mode .bg-gray-700 {
+    background-color: #374151 !important;
+}
+
+/* Summary box backgrounds */
+.dark-mode .bg-blue-50 {
+    background-color: #1e3a5f !important;
+    border: 1px solid #2563eb;
+}
+
+.dark-mode .bg-green-50 {
+    background-color: #14532d !important;
+    border: 1px solid #16a34a;
+}
+
+/* Improve text colors in summary boxes */
+.dark-mode .text-blue-800,
+.dark-mode .text-blue-700 {
+    color: #93c5fd !important;
+}
+
+.dark-mode .text-green-800,
+.dark-mode .text-green-700 {
+    color: #86efac !important;
+}
+
+.dark-mode .text-blue-200 {
+    color: #bfdbfe !important;
+}
+
+.dark-mode .text-green-200 {
+    color: #bbf7d0 !important;
+}
+
 .loading-spinner {
     display: inline-block;
     width: 20px;
@@ -113,11 +410,20 @@
 }
 
 .dark-mode .highlight-prepayment {
-    background-color: rgba(30, 58, 138, 0.5);
+    background-color: rgba(59, 130, 246, 0.25) !important;
 }
 
 .dark-mode .highlight-lumpsum {
-    background-color: rgba(113, 63, 18, 0.5);
+    background-color: rgba(234, 179, 8, 0.25) !important;
+}
+
+/* Improve table hover in dark mode */
+.dark-mode .hover\:bg-gray-100:hover {
+    background-color: #374151 !important;
+}
+
+.dark-mode .dark\:hover\:bg-gray-600:hover {
+    background-color: #4b5563 !important;
 }
 
 /* Responsive tables */
@@ -129,10 +435,253 @@
     @apply w-full border border-gray-300 text-left;
 }
 
+.dark-mode .table-container table {
+    border-color: #4b5563;
+}
+
 .table-container th {
     @apply p-2 bg-blue-100 dark:bg-blue-800;
 }
 
 .table-container td {
     @apply p-2 border-t border-gray-200 dark:border-gray-600;
+}
+
+/* Ensure table text is readable in dark mode */
+.dark-mode .table-container {
+    background-color: #1f2937;
+}
+
+.dark-mode .table-container th {
+    background-color: #1e40af !important;
+    color: #f3f4f6 !important;
+    font-weight: 600;
+}
+
+.dark-mode .table-container td {
+    color: #e5e7eb !important;
+    border-color: #4b5563 !important;
+}
+
+/* Tab button styles for multiple prepayments */
+.tab-button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #cbd5e0;
+    background: white;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-button:hover {
+    background: #f7fafc;
+    border-color: #3b82f6;
+}
+
+.tab-button.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.dark-mode .tab-button {
+    background: #2d3748;
+    color: #e2e8f0;
+    border-color: #4a5568;
+}
+
+.dark-mode .tab-button:hover {
+    background: #374151;
+    border-color: #3b82f6;
+}
+
+.dark-mode .tab-button.active {
+    background: #3b82f6;
+    color: white;
+}
+
+/* Rate change and prepayment list item styles */
+.rate-change-item,
+.prepayment-item {
+    transition: all 0.2s;
+}
+
+.rate-change-item:hover,
+.prepayment-item:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .rate-change-item:hover,
+.dark-mode .prepayment-item:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Button styles for add/remove buttons */
+.btn-secondary {
+    padding: 0.5rem 1rem;
+    background: #6b7280;
+    color: white;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.btn-danger {
+    padding: 0.5rem 1rem;
+    background: #ef4444;
+    color: white;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+/* Accordion animation */
+#rateChangesSection,
+#multiplePrepaymentsSection {
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+/* Make inputs in list items smaller */
+.rate-change-item input,
+.prepayment-item input,
+.rate-change-item select,
+.prepayment-item select {
+    font-size: 0.875rem;
+}
+
+.dark-mode .rate-change-item input,
+.dark-mode .prepayment-item input,
+.dark-mode .rate-change-item select,
+.dark-mode .prepayment-item select {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #e2e8f0;
+}
+
+/* Enhanced chart container styling */
+canvas {
+    border-radius: 8px;
+    background: transparent !important;
+}
+
+.chart-container {
+    position: relative;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.dark-mode .chart-container {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.1) 100%);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.chart-container:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .chart-container:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Compare button pulse animation */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(249, 115, 22, 0.4), 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(249, 115, 22, 0.7), 0 10px 30px -5px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.dark-mode @keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 25px rgba(249, 115, 22, 0.5), 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(249, 115, 22, 0.8), 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+    }
+}
+
+#compareScenarios {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+#compareScenarios:hover {
+    animation: none;
+}
+
+/* Scrollbar styling for dark mode */
+.dark-mode ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+    background: #1f2937;
+    border-radius: 6px;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 6px;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* Improve visibility of focused elements in dark mode */
+.dark-mode *:focus {
+    outline-color: #60a5fa;
+}
+
+/* Bold text should be even brighter in dark mode */
+.dark-mode strong,
+.dark-mode b,
+.dark-mode .font-bold,
+.dark-mode .font-semibold {
+    color: #f9fafb !important;
+}
+
+/* Scenario applied animation */
+@keyframes scenarioHighlight {
+    0% {
+        background-color: rgba(59, 130, 246, 0.3);
+        transform: scale(1);
+    }
+    50% {
+        background-color: rgba(59, 130, 246, 0.5);
+        transform: scale(1.02);
+    }
+    100% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+}
+
+.dark-mode @keyframes scenarioHighlight {
+    0% {
+        background-color: rgba(59, 130, 246, 0.2);
+    }
+    50% {
+        background-color: rgba(59, 130, 246, 0.4);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.scenario-applied {
+    animation: scenarioHighlight 0.6s ease-out;
 }
