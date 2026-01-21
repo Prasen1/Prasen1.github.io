@@ -694,6 +694,7 @@ function calculateForwardSIP() {
                 // Add to full growth table (monthly)
                 tableHTML += `<tr class="hover:bg-gray-100 dark:hover:bg-gray-600">
                     <td class='p-2'>${i}</td>
+                    <td class='p-2'>${formatCurrency(totalInvested)}</td>
                     <td class='p-2'>${formatCurrency(totalAmount)}</td>
                     <td class='p-2'>${inflationRate > 0 ? formatCurrency(inflationAdjusted) : 'N/A'}</td>
                 </tr>`;
