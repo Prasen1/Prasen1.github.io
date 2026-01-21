@@ -82,15 +82,15 @@ export class AdvancedLoanCalculator {
                 if (strategy === 'REDUCE_EMI') {
                     // REDUCE_EMI: Add prepayment to principal, then recalculate EMI
                     principal += totalPrepayment;
-                    balance -= principal;
+                    const newBalance = balance - principal;
 
                     // Recalculate EMI for remaining balance
-                    if (balance > 0.01) {
-                        const remainingMonths = this.estimateRemainingMonths(balance, currentRate);
-                        this.currentEMI = this.calculateEMI(balance, currentRate, remainingMonths);
+                    if (newBalance > 0.01) {
+                        const remainingMonths = this.estimateRemainingMonths(newBalance, currentRate);
+                        this.currentEMI = this.calculateEMI(newBalance, currentRate, remainingMonths);
 
                         // Ensure new EMI can cover at least the interest
-                        const minEMI = balance * monthlyRate * 1.01; // 1% buffer
+                        const minEMI = newBalance * monthlyRate * 1.01; // 1% buffer
                         if (this.currentEMI < minEMI) {
                             this.currentEMI = minEMI;
                         }
@@ -353,13 +353,13 @@ export class AdvancedLoanCalculator {
 
                 if (strategy === 'REDUCE_EMI') {
                     principal += totalPrepayment;
-                    balance -= principal;
+                    const newBalance = balance - principal;
 
-                    if (balance > 0.01) {
-                        const remainingMonths = this.estimateRemainingMonths(balance, currentRate);
-                        this.currentEMI = this.calculateEMI(balance, currentRate, remainingMonths);
+                    if (newBalance > 0.01) {
+                        const remainingMonths = this.estimateRemainingMonths(newBalance, currentRate);
+                        this.currentEMI = this.calculateEMI(newBalance, currentRate, remainingMonths);
 
-                        const minEMI = balance * monthlyRate * 1.01;
+                        const minEMI = newBalance * monthlyRate * 1.01;
                         if (this.currentEMI < minEMI) {
                             this.currentEMI = minEMI;
                         }
