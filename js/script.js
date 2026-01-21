@@ -389,7 +389,7 @@ function calculateLoan() {
                     <td class='p-2'>${row.month}</td>
                     <td class='p-2'>${formatCurrency(row.balance)}</td>
                     <td class='p-2'>${formatCurrency(row.interest)}</td>
-                    <td class='p-2'>${formatCurrency(row.principal + (row.prepayment || 0))}</td>
+                    <td class='p-2'>${formatCurrency(row.principal)}</td>
                     <td class='p-2'>${paymentType}</td>
                 </tr>`;
             }).join('');
