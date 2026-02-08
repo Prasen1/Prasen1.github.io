@@ -171,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFDRDSection();
   initTaxSection();
   initCompareSection();
+  initHealthWidget();
 
   // Check hash for direct navigation
   const hash = window.location.hash.replace('#', '');
@@ -300,9 +301,6 @@ function initDashboard() {
 
   // Fetch live data
   fetchLiveMarketData();
-
-  // Draw empty health gauge
-  drawHealthGauge(0);
 }
 
 async function fetchLiveMarketData() {
@@ -2134,22 +2132,110 @@ function renderCompareChart(selected, type) {
 // 11. FINANCIAL HEALTH
 // ══════════════════════════════════════════════════
 
-// The health widget is on the dashboard. We use a simple approach:
-// Collect some quick inputs from the user's last calculations if available.
-// For now, clicking the score widget shows a simple modal.
-// We integrate with the gauge on the dashboard.
+function initHealthWidget() {
+  const calcBtn = $('health-calculate-btn');
+  const editBtn = $('health-edit-btn');
 
-function updateHealthScore(params) {
+  if (calcBtn) calcBtn.addEventListener('click', calculateHealthScore);
+  if (editBtn) editBtn.addEventListener('click', () => {
+    $('health-gauge-display').classList.add('hidden');
+    $('health-form-display').classList.remove('hidden');
+  });
+
+  // Load saved data from localStorage
+  const saved = localStorage.getItem('v2_health_data');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      if (data.monthlyIncome > 0) {
+        // Populate form fields
+        const el = (id) => $(id);
+        if (el('health-income')) el('health-income').value = data.monthlyIncome || '';
+        if (el('health-expenses')) el('health-expenses').value = data.monthlyExpenses || '';
+        if (el('health-emis')) el('health-emis').value = data.monthlyEMIs || '';
+        if (el('health-debt')) el('health-debt').value = data.totalDebt || '';
+        if (el('health-emergency')) el('health-emergency').value = data.emergencyFund || '';
+        if (el('health-investments')) el('health-investments').value = data.monthlySavings || '';
+        if (el('health-insurance')) el('health-insurance').checked = !!data.hasInsurance;
+        // Auto-calculate with saved data
+        calculateHealthScore();
+      }
+    } catch { /* ignore corrupt data */ }
+  }
+}
+
+function calculateHealthScore() {
+  const income = parseFloat($('health-income')?.value) || 0;
+  if (income <= 0) {
+    showToast('Please enter your monthly income', 'error');
+    return;
+  }
+
+  const params = {
+    monthlyIncome: income,
+    monthlyExpenses: parseFloat($('health-expenses')?.value) || 0,
+    monthlyEMIs: parseFloat($('health-emis')?.value) || 0,
+    totalDebt: parseFloat($('health-debt')?.value) || 0,
+    emergencyFund: parseFloat($('health-emergency')?.value) || 0,
+    monthlySavings: parseFloat($('health-investments')?.value) || 0,
+    hasInsurance: $('health-insurance')?.checked || false,
+    investments: parseFloat($('health-investments')?.value) || 0,
+  };
+
+  // Save to localStorage
+  localStorage.setItem('v2_health_data', JSON.stringify(params));
+
   try {
     const result = healthCalc.calculateScore(params);
     const recommendations = healthCalc.getRecommendations(result.score, params);
 
+    // Update gauge
     $('health-score-value').textContent = result.score;
-    $('health-score-label').textContent = result.grade;
+    const labelEl = $('health-score-label');
+    if (labelEl) {
+      const gradeColors = {
+        'Excellent': 'text-green-600 dark:text-green-400',
+        'Good': 'text-blue-600 dark:text-blue-400',
+        'Fair': 'text-amber-600 dark:text-amber-400',
+        'Needs Improvement': 'text-orange-600 dark:text-orange-400',
+        'Critical': 'text-red-600 dark:text-red-400',
+      };
+      labelEl.textContent = result.grade;
+      labelEl.className = `text-center text-sm font-medium mt-2 ${gradeColors[result.grade] || ''}`;
+    }
     drawHealthGauge(result.score);
 
-    return { ...result, recommendations };
-  } catch {
-    return null;
+    // Show recommendations
+    const recsEl = $('health-recommendations');
+    if (recsEl && recommendations.length > 0) {
+      recsEl.innerHTML = recommendations.slice(0, 3).map(r =>
+        `<div class="flex items-start gap-1.5"><i class="fa-solid fa-circle-info text-primary-500 mt-0.5 text-xs flex-shrink-0"></i><span>${r}</span></div>`
+      ).join('');
+    } else if (recsEl) {
+      recsEl.innerHTML = '';
+    }
+
+    // Show score breakdown as mini bar
+    const breakdown = result.breakdown;
+    const barsHTML = [
+      { label: 'Savings', score: breakdown.savingsRate.score, max: 25 },
+      { label: 'Debt', score: breakdown.debtToIncome.score, max: 25 },
+      { label: 'Emergency', score: breakdown.emergencyFund.score, max: 25 },
+      { label: 'Insurance', score: breakdown.insuranceInvestments.score, max: 25 },
+    ].map(b => {
+      const pct = (b.score / b.max) * 100;
+      const color = pct >= 80 ? 'bg-green-500' : pct >= 50 ? 'bg-amber-500' : 'bg-red-500';
+      return `<div class="flex items-center gap-2 text-xs"><span class="w-16 text-gray-500 dark:text-gray-400">${b.label}</span><div class="flex-1 h-1.5 rounded-full bg-gray-200 dark:bg-gray-700"><div class="${color} h-full rounded-full" style="width:${pct}%"></div></div><span class="w-6 text-right text-gray-500 dark:text-gray-400">${b.score}</span></div>`;
+    }).join('');
+
+    if (recsEl) {
+      recsEl.innerHTML = `<div class="space-y-1.5 mb-2">${barsHTML}</div>` + recsEl.innerHTML;
+    }
+
+    // Switch to gauge view
+    $('health-form-display').classList.add('hidden');
+    $('health-gauge-display').classList.remove('hidden');
+  } catch (err) {
+    showToast(`Health score error: ${err.message}`, 'error');
   }
 }
