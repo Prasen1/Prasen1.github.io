@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinPlan Pro v2 - Financial Planning Dashboard</title>
+    <meta name="description" content="Professional financial planning dashboard with loan analyzer, SIP planner, EMI calculator, FD/RD calculator, and tax planner.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a5f' },
+                        accent: { 500: '#10b981', 600: '#059669' },
+                        surface: { 50: '#f8fafc', 100: '#f1f5f9', 800: '#1e293b', 900: '#0f172a' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-surface-50 dark:bg-surface-900 text-gray-900 dark:text-gray-100 min-h-screen flex">
+
+    <!-- ======================== -->
+    <!-- LEFT SIDEBAR NAVIGATION -->
+    <!-- ======================== -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-surface-800 border-r border-gray-200 dark:border-gray-700 shadow-lg transform transition-transform duration-300 flex flex-col" aria-label="Main navigation">
+        <!-- Logo / Brand -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+            <a href="#" class="flex items-center gap-2" data-action="go-home">
+                <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-chart-pie text-white text-sm"></i>
+                </div>
+                <span class="text-lg font-bold text-primary-800 dark:text-primary-100 sidebar-label">FinPlan Pro <span class="text-xs font-normal text-primary-500">v2</span></span>
+            </a>
+            <button id="sidebar-collapse-btn" class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 lg:hidden" aria-label="Close sidebar">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Navigation Items -->
+        <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1" aria-label="Dashboard navigation">
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors active" data-section="dashboard" aria-current="page">
+                <i class="fa-solid fa-gauge-high w-5 text-center"></i>
+                <span class="sidebar-label">Dashboard</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors" data-section="loan">
+                <i class="fa-solid fa-building-columns w-5 text-center"></i>
+                <span class="sidebar-label">Loan Analyzer</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors" data-section="sip">
+                <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                <span class="sidebar-label">SIP Planner</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors" data-section="emi">
+                <i class="fa-solid fa-calculator w-5 text-center"></i>
+                <span class="sidebar-label">EMI Calculator</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors" data-section="fdrd">
+                <i class="fa-solid fa-piggy-bank w-5 text-center"></i>
+                <span class="sidebar-label">FD/RD Calculator</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors" data-section="tax">
+                <i class="fa-solid fa-receipt w-5 text-center"></i>
+                <span class="sidebar-label">Tax Planner</span>
+            </a>
+            <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors" data-section="compare">
+                <i class="fa-solid fa-scale-balanced w-5 text-center"></i>
+                <span class="sidebar-label">Compare</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="px-3 py-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+            <button id="dark-mode-toggle" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="Toggle dark mode">
+                <i class="fa-solid fa-moon w-5 text-center dark:hidden"></i>
+                <i class="fa-solid fa-sun w-5 text-center hidden dark:inline"></i>
+                <span class="sidebar-label dark:hidden">Dark Mode</span>
+                <span class="sidebar-label hidden dark:inline">Light Mode</span>
+            </button>
+            <a href="../v1/index.html" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <i class="fa-solid fa-arrow-left w-5 text-center"></i>
+                <span class="sidebar-label">Back to v1</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" data-action="close-sidebar"></div>
+
+    <!-- ======================== -->
+    <!-- MAIN CONTENT AREA        -->
+    <!-- ======================== -->
+    <main class="flex-1 lg:ml-64 min-h-screen">
+        <!-- Top Bar (mobile) -->
+        <header class="sticky top-0 z-20 bg-white/80 dark:bg-surface-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between lg:hidden">
+            <button id="sidebar-open-btn" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Open sidebar">
+                <i class="fa-solid fa-bars text-lg text-gray-700 dark:text-gray-200"></i>
+            </button>
+            <span class="text-sm font-semibold text-primary-700 dark:text-primary-300">FinPlan Pro v2</span>
+            <div class="w-8"></div>
+        </header>
+
+        <div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+
+            <!-- ================================= -->
+            <!-- A. DASHBOARD SECTION              -->
+            <!-- ================================= -->
+            <section id="dashboard-section" class="content-section" aria-label="Dashboard overview">
+                <!-- Welcome Header -->
+                <div class="mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Welcome to FinPlan Pro</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" id="dashboard-date"></p>
+                </div>
+
+                <!-- KPI Cards Row -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm" data-kpi="nifty">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">NIFTY 50</span>
+                            <i class="fa-solid fa-chart-line text-primary-500"></i>
+                        </div>
+                        <p class="text-xl font-bold text-gray-900 dark:text-white" id="kpi-nifty-value">--</p>
+                        <p class="text-xs mt-1" id="kpi-nifty-change">--</p>
+                    </div>
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm" data-kpi="gold">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Gold (24K)</span>
+                            <i class="fa-solid fa-coins text-yellow-500"></i>
+                        </div>
+                        <p class="text-xl font-bold text-gray-900 dark:text-white" id="kpi-gold-value">--</p>
+                        <p class="text-xs mt-1" id="kpi-gold-change">--</p>
+                    </div>
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm" data-kpi="usd">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">USD/INR</span>
+                            <i class="fa-solid fa-dollar-sign text-green-500"></i>
+                        </div>
+                        <p class="text-xl font-bold text-gray-900 dark:text-white" id="kpi-usd-value">--</p>
+                        <p class="text-xs mt-1" id="kpi-usd-change">--</p>
+                    </div>
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm" data-kpi="repo">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Repo Rate</span>
+                            <i class="fa-solid fa-landmark text-red-500"></i>
+                        </div>
+                        <p class="text-xl font-bold text-gray-900 dark:text-white" id="kpi-repo-value">--</p>
+                        <p class="text-xs mt-1 text-gray-500 dark:text-gray-400" id="kpi-repo-change">RBI Policy Rate</p>
+                    </div>
+                </div>
+
+                <!-- Financial Health Score + Quick Actions -->
+                <div class="grid lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Financial Health Score Widget -->
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Financial Health Score</h2>
+                        <div class="flex items-center justify-center">
+                            <div class="relative w-40 h-40">
+                                <canvas id="health-score-gauge" width="160" height="160" aria-label="Financial health score gauge"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                    <span class="text-3xl font-bold text-gray-900 dark:text-white" id="health-score-value">--</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">out of 100</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-3" id="health-score-label">Complete a calculation to see your score</p>
+                    </div>
+
+                    <!-- Quick Action Cards -->
+                    <div class="lg:col-span-2 bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                        <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Quick Actions</h2>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <button class="quick-action-card flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-primary-400 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all text-center" data-navigate="loan">
+                                <i class="fa-solid fa-building-columns text-2xl text-primary-600 dark:text-primary-400"></i>
+                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Loan Analyzer</span>
+                            </button>
+                            <button class="quick-action-card flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-accent-500 dark:hover:border-accent-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all text-center" data-navigate="sip">
+                                <i class="fa-solid fa-chart-line text-2xl text-accent-600 dark:text-accent-500"></i>
+                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">SIP Planner</span>
+                            </button>
+                            <button class="quick-action-card flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-violet-400 dark:hover:border-violet-500 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all text-center" data-navigate="emi">
+                                <i class="fa-solid fa-calculator text-2xl text-violet-600 dark:text-violet-400"></i>
+                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">EMI Calculator</span>
+                            </button>
+                            <button class="quick-action-card flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-amber-400 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all text-center" data-navigate="fdrd">
+                                <i class="fa-solid fa-piggy-bank text-2xl text-amber-600 dark:text-amber-400"></i>
+                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">FD/RD Calculator</span>
+                            </button>
+                            <button class="quick-action-card flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-rose-400 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all text-center" data-navigate="tax">
+                                <i class="fa-solid fa-receipt text-2xl text-rose-600 dark:text-rose-400"></i>
+                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Tax Planner</span>
+                            </button>
+                            <button class="quick-action-card flex flex-col items-center gap-2 p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-orange-400 dark:hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all text-center" data-navigate="compare">
+                                <i class="fa-solid fa-scale-balanced text-2xl text-orange-600 dark:text-orange-400"></i>
+                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Compare</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Calculations Summary -->
+                <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Recent Calculations</h2>
+                    <div id="recent-calculations" class="space-y-2">
+                        <p class="text-sm text-gray-400 dark:text-gray-500 italic">No recent calculations. Use any tool to get started.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================= -->
+            <!-- B. LOAN ANALYZER SECTION          -->
+            <!-- ================================= -->
+            <section id="loan-section" class="content-section hidden" aria-label="Loan prepayment analyzer">
+                <div class="mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Loan Prepayment Analyzer</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Analyze how prepayments reduce your loan cost and tenure</p>
+                </div>
+
+                <!-- Preset Buttons -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button class="loan-preset px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors" data-preset="home">Home Loan</button>
+                    <button class="loan-preset px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors" data-preset="car">Car Loan</button>
+                    <button class="loan-preset px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors" data-preset="personal">Personal Loan</button>
+                    <button class="loan-preset px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors" data-preset="education">Education Loan</button>
+                    <button class="loan-preset px-4 py-2 rounded-lg text-sm font-medium border border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 transition-colors" data-preset="custom">Custom</button>
+                </div>
+
+                <!-- Input Form Card -->
+                <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm mb-6">
+                    <div class="grid sm:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label for="loan-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Loan Amount (&#8377;)</label>
+                            <input type="number" id="loan-amount" placeholder="e.g. 5000000" min="1000" step="1000"
+                                class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors" required aria-required="true">
+                        </div>
+                        <div>
+                            <label for="loan-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interest Rate (%)</label>
+                            <input type="number" id="loan-rate" placeholder="e.g. 8.5" min="0" max="30" step="0.01"
+                                class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors" required aria-required="true">
+                        </div>
+                        <div>
+                            <label for="loan-tenure" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tenure (years)</label>
+                            <input type="number" id="loan-tenure" placeholder="e.g. 20" min="1" max="50"
+                                class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors" required aria-required="true">
+                        </div>
+                    </div>
+
+                    <!-- Prepayment Strategy Toggle -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prepayment Strategy</label>
+                        <div class="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+                            <button type="button" class="prepay-strategy-btn px-4 py-2 text-sm font-medium bg-primary-600 text-white" data-strategy="reduce-tenure">Reduce Tenure</button>
+                            <button type="button" class="prepay-strategy-btn px-4 py-2 text-sm font-medium bg-white dark:bg-surface-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" data-strategy="reduce-emi">Reduce EMI</button>
+                        </div>
+                        <input type="hidden" id="loan-prepay-strategy" value="reduce-tenure">
+                    </div>
+
+                    <!-- Advanced Options Accordion -->
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                        <button type="button" id="loan-advanced-toggle" class="w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-surface-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-expanded="false" aria-controls="loan-advanced-panel">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <i class="fa-solid fa-sliders mr-2"></i>Advanced Options
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform" id="loan-advanced-chevron"></i>
+                        </button>
+                        <div id="loan-advanced-panel" class="hidden px-4 py-4 space-y-6 border-t border-gray-200 dark:border-gray-700">
+                            <!-- Interest Rate Changes -->
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Interest Rate Changes</h3>
+                                    <button type="button" id="add-rate-change" class="text-xs px-3 py-1 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-800/40 transition-colors">
+                                        <i class="fa-solid fa-plus mr-1"></i>Add Change
+                                    </button>
+                                </div>
+                                <div id="rate-changes-list" class="space-y-2">
+                                    <!-- Dynamically added rows: From Month, New Rate -->
+                                </div>
+                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Specify when the interest rate changes during the loan tenure</p>
+                            </div>
+
+                            <!-- Prepayments with Tabs -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Prepayments</h3>
+                                <div class="flex border-b border-gray-200 dark:border-gray-700 mb-3" role="tablist" aria-label="Prepayment types">
+                                    <button type="button" role="tab" class="prepay-tab px-4 py-2 text-sm font-medium border-b-2 border-primary-500 text-primary-600 dark:text-primary-400" data-prepay-tab="monthly" aria-selected="true" aria-controls="prepay-monthly-panel">Monthly</button>
+                                    <button type="button" role="tab" class="prepay-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" data-prepay-tab="yearly" aria-selected="false" aria-controls="prepay-yearly-panel">Yearly</button>
+                                    <button type="button" role="tab" class="prepay-tab px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" data-prepay-tab="onetime" aria-selected="false" aria-controls="prepay-onetime-panel">One-Time</button>
+                                </div>
+
+                                <!-- Monthly Prepayments Panel -->
+                                <div id="prepay-monthly-panel" class="prepay-panel" role="tabpanel" aria-labelledby="tab-monthly">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Extra monthly payment amount, optional start/end months</span>
+                                        <button type="button" class="add-prepay-btn text-xs px-3 py-1 rounded-md bg-accent-500/10 text-accent-600 dark:text-accent-500 hover:bg-accent-500/20 transition-colors" data-prepay-type="monthly">
+                                            <i class="fa-solid fa-plus mr-1"></i>Add
+                                        </button>
+                                    </div>
+                                    <div id="prepay-monthly-list" class="space-y-2">
+                                        <!-- Rows: Amount | From Month | To Month (optional) -->
+                                    </div>
+                                </div>
+
+                                <!-- Yearly Prepayments Panel -->
+                                <div id="prepay-yearly-panel" class="prepay-panel hidden" role="tabpanel" aria-labelledby="tab-yearly">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Lump sum prepayment each year in a specific month</span>
+                                        <button type="button" class="add-prepay-btn text-xs px-3 py-1 rounded-md bg-accent-500/10 text-accent-600 dark:text-accent-500 hover:bg-accent-500/20 transition-colors" data-prepay-type="yearly">
+                                            <i class="fa-solid fa-plus mr-1"></i>Add
+                                        </button>
+                                    </div>
+                                    <div id="prepay-yearly-list" class="space-y-2">
+                                        <!-- Rows: Amount | Month of Year -->
+                                    </div>
+                                </div>
+
+                                <!-- One-Time Prepayments Panel -->
+                                <div id="prepay-onetime-panel" class="prepay-panel hidden" role="tabpanel" aria-labelledby="tab-onetime">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Single lump sum prepayment at a specific month</span>
+                                        <button type="button" class="add-prepay-btn text-xs px-3 py-1 rounded-md bg-accent-500/10 text-accent-600 dark:text-accent-500 hover:bg-accent-500/20 transition-colors" data-prepay-type="onetime">
+                                            <i class="fa-solid fa-plus mr-1"></i>Add
+                                        </button>
+                                    </div>
+                                    <div id="prepay-onetime-list" class="space-y-2">
+                                        <!-- Rows: Amount | At Month -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-wrap gap-3 mt-6">
+                        <button id="loan-calculate-btn" class="px-6 py-2.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium text-sm transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-calculator"></i>
+                            <span>Calculate</span>
+                            <span id="loan-spinner" class="hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                        </button>
+                        <button id="loan-clear-btn" class="px-6 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-sm transition-colors">
+                            Clear
+                        </button>
+                        <button id="loan-example-btn" class="px-6 py-2.5 rounded-lg border border-violet-300 dark:border-violet-600 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20 font-medium text-sm transition-colors">
+                            <i class="fa-solid fa-lightbulb mr-1"></i>Load Example
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loan Results Area (initially hidden) -->
+                <div id="loan-results" class="hidden space-y-6">
+                    <!-- KPI Cards: No Prepayment (shown when no prepayments) -->
+                    <div id="loan-kpi-no-prepay" class="hidden">
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Monthly EMI</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-white mt-1" id="loan-kpi-emi">--</p>
+                            </div>
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Interest</p>
+                                <p class="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1" id="loan-kpi-total-interest">--</p>
+                            </div>
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Payment</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-white mt-1" id="loan-kpi-total-payment">--</p>
+                            </div>
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tenure</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-white mt-1" id="loan-kpi-tenure">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards: With Prepayment (shown when prepayments exist) -->
+                    <div id="loan-kpi-with-prepay" class="hidden">
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Original Interest</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-white mt-1" id="loan-kpi-orig-interest">--</p>
+                            </div>
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">New Interest</p>
+                                <p class="text-xl font-bold text-accent-600 dark:text-accent-500 mt-1" id="loan-kpi-new-interest">--</p>
+                            </div>
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-4 shadow-sm">
+                                <p class="text-xs text-green-600 dark:text-green-400 uppercase tracking-wide font-semibold">Interest Saved</p>
+                                <p class="text-xl font-bold text-green-700 dark:text-green-400 mt-1" id="loan-kpi-saved">--</p>
+                            </div>
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-4 shadow-sm">
+                                <p class="text-xs text-green-600 dark:text-green-400 uppercase tracking-wide font-semibold">Months Saved</p>
+                                <p class="text-xl font-bold text-green-700 dark:text-green-400 mt-1" id="loan-kpi-months-saved">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loan Summary (no prepayments) -->
+                    <div id="loan-summary-no-prepay" class="hidden">
+                        <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+                            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Loan Summary</h3>
+                            <div class="space-y-2 text-sm" id="loan-summary-details">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- What-if Prepayment Suggestions (no prepayments) -->
+                    <div id="loan-whatif" class="hidden">
+                        <div class="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-5 shadow-sm">
+                            <div class="flex items-center gap-2 mb-3">
+                                <i class="fa-solid fa-lightbulb text-amber-500"></i>
+                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-200">What if you made small prepayments?</h3>
+                            </div>
+                            <div class="grid sm:grid-cols-3 gap-3" id="loan-whatif-scenarios">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Cards Side-by-Side (with prepayments) -->
+                    <div id="loan-comparison-cards" class="hidden grid md:grid-cols-2 gap-4">
+                        <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+                            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Original Loan</h3>
+                            <div class="space-y-2 text-sm" id="loan-original-details">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-surface-800 rounded-xl border border-accent-300 dark:border-accent-700 p-5 shadow-sm">
+                            <h3 class="text-sm font-semibold text-accent-600 dark:text-accent-500 uppercase tracking-wide mb-3">With Prepayments</h3>
+                            <div class="space-y-2 text-sm" id="loan-new-details">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Amortization Chart -->
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Amortization Chart</h3>
+                        <div class="relative" style="height: 350px;">
+                            <canvas id="loanChart" aria-label="Loan amortization comparison chart" role="img"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Amortization Table -->
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                        <button type="button" id="loan-table-toggle" class="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" aria-expanded="false" aria-controls="loan-table-wrapper">
+                            <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                <i class="fa-solid fa-table mr-2"></i>Amortization Schedule
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform" id="loan-table-chevron"></i>
+                        </button>
+                        <div id="loan-table-wrapper" class="hidden border-t border-gray-200 dark:border-gray-700">
+                            <div class="px-5 py-3 border-b border-gray-200 dark:border-gray-700">
+                                <input type="text" id="loan-table-search" placeholder="Search schedule..." class="w-full sm:w-64 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none">
+                            </div>
+                            <div class="overflow-x-auto max-h-96">
+                                <table id="loan-amortization-table" class="w-full text-sm text-left">
+                                    <thead class="bg-gray-50 dark:bg-surface-900 text-xs uppercase text-gray-500 dark:text-gray-400 sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-3">Month</th>
+                                            <th class="px-4 py-3">EMI</th>
+                                            <th class="px-4 py-3">Principal</th>
+                                            <th class="px-4 py-3">Interest</th>
+                                            <th class="px-4 py-3">Prepayment</th>
+                                            <th class="px-4 py-3">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tax Benefit Info -->
+                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 p-5 shadow-sm">
+                        <h3 class="text-sm font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide mb-2">
+                            <i class="fa-solid fa-info-circle mr-1"></i>Tax Benefit Info
+                        </h3>
+                        <div class="text-sm text-blue-800 dark:text-blue-300" id="loan-tax-info">
+                            <p>Section 24: Home loan interest deduction up to &#8377;2,00,000/year for self-occupied property.</p>
+                            <p class="mt-1">Section 80C: Principal repayment deduction up to &#8377;1,50,000/year.</p>
+                        </div>
+                    </div>
+
+                    <!-- Export / Save Actions -->
+                    <div class="flex flex-wrap gap-3">
+                        <button id="loan-export-pdf" class="px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-file-pdf"></i>Export PDF
+                        </button>
+                        <button id="loan-export-csv" class="px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-file-csv"></i>Export CSV
+                        </button>
+                        <button id="loan-save-scenario" class="px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-bookmark"></i>Save Scenario
+                        </button>
+                    </div>
+
+                    <!-- Affiliate CTAs -->
+                    <div id="loan-affiliate-ctas" class="hidden space-y-4"></div>
+                </div>
+
+                <!-- Saved Loan Scenarios -->
+                <div class="mt-8">
+                    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Saved Loan Scenarios</h2>
+                    <div id="loan-saved-scenarios" class="space-y-2">
+                        <p class="text-sm text-gray-400 dark:text-gray-500 italic">No saved loan scenarios</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================= -->
+            <!-- C. SIP PLANNER SECTION            -->
+            <!-- ================================= -->
+            <section id="sip-section" class="content-section hidden" aria-label="SIP growth planner">
+                <div class="mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">SIP Growth Planner</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Plan systematic investments with step-ups, inflation adjustments, and goal-based planning</p>
+                </div>
+
+                <!-- Mode Toggle -->
+                <div class="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="SIP calculation modes">
+                    <button role="tab" class="sip-mode-btn px-4 py-2 rounded-lg text-sm font-medium bg-accent-600 text-white" data-sip-mode="forward" aria-selected="true">Forward Calculator</button>
+                    <button role="tab" class="sip-mode-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" data-sip-mode="goal" aria-selected="false">Goal Planner</button>
+                    <button role="tab" class="sip-mode-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" data-sip-mode="retirement" aria-selected="false">Retirement Planner</button>
+                </div>
+
+                <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm mb-6">
+                    <!-- Forward Mode Inputs -->
+                    <div id="sip-forward-inputs" class="sip-mode-panel">
+                        <!-- Presets -->
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 self-center mr-2">Presets:</span>
+                            <button class="sip-return-preset px-3 py-1 rounded-md text-xs font-medium border border-gray-300 dark:border-gray-600 hover:border-accent-500 transition-colors" data-return="8">Conservative (8%)</button>
+                            <button class="sip-return-preset px-3 py-1 rounded-md text-xs font-medium border border-gray-300 dark:border-gray-600 hover:border-accent-500 transition-colors" data-return="12">Moderate (12%)</button>
+                            <button class="sip-return-preset px-3 py-1 rounded-md text-xs font-medium border border-gray-300 dark:border-gray-600 hover:border-accent-500 transition-colors" data-return="15">Aggressive (15%)</button>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label for="sip-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly SIP (&#8377;)</label>
+                                <input type="number" id="sip-amount" placeholder="e.g. 10000" min="100" step="100"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-return" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expected Return (%)</label>
+                                <input type="number" id="sip-return" placeholder="e.g. 12" min="0" max="30" step="0.1"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-duration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration (years)</label>
+                                <input type="number" id="sip-duration" placeholder="e.g. 15" min="1" max="50"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-stepup" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Annual Step-up (%)</label>
+                                <input type="number" id="sip-stepup" placeholder="e.g. 10" min="0" max="100" step="0.1"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors">
+                            </div>
+                            <div>
+                                <label for="sip-inflation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Inflation Rate (%)</label>
+                                <input type="number" id="sip-inflation" placeholder="e.g. 6" min="0" max="20" step="0.1"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goal Mode Inputs -->
+                    <div id="sip-goal-inputs" class="sip-mode-panel hidden">
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label for="sip-target-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Target Amount (&#8377;)</label>
+                                <input type="number" id="sip-target-amount" placeholder="e.g. 10000000" min="1000" step="1000"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-goal-horizon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time Horizon (years)</label>
+                                <input type="number" id="sip-goal-horizon" placeholder="e.g. 10" min="1" max="50"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-goal-return" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Expected Return (%)</label>
+                                <input type="number" id="sip-goal-return" placeholder="e.g. 12" min="0" max="30" step="0.1"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-goal-stepup" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Step-up (%)</label>
+                                <input type="number" id="sip-goal-stepup" placeholder="e.g. 10" min="0" max="100" step="0.1"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors">
+                            </div>
+                            <div>
+                                <label for="sip-goal-inflation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Inflation (%)</label>
+                                <input type="number" id="sip-goal-inflation" placeholder="e.g. 6" min="0" max="20" step="0.1"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Retirement Mode Inputs -->
+                    <div id="sip-retirement-inputs" class="sip-mode-panel hidden">
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label for="sip-current-age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Age</label>
+                                <input type="number" id="sip-current-age" placeholder="e.g. 30" min="18" max="80"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-retirement-age" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Retirement Age</label>
+                                <input type="number" id="sip-retirement-age" placeholder="e.g. 60" min="30" max="80"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-monthly-expenses" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly Expenses (&#8377;)</label>
+                                <input type="number" id="sip-monthly-expenses" placeholder="e.g. 50000" min="1000" step="1000"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-retire-inflation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Inflation (%)</label>
+                                <input type="number" id="sip-retire-inflation" placeholder="e.g. 6" min="0" max="20" step="0.1"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-pre-retire-return" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pre-retirement Return (%)</label>
+                                <input type="number" id="sip-pre-retire-return" placeholder="e.g. 12" min="0" max="30" step="0.1"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                            <div>
+                                <label for="sip-post-retire-return" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Post-retirement Return (%)</label>
+                                <input type="number" id="sip-post-retire-return" placeholder="e.g. 7" min="0" max="30" step="0.1"
+                                    class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-colors" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-wrap gap-3 mt-6">
+                        <button id="sip-calculate-btn" class="px-6 py-2.5 rounded-lg bg-accent-600 hover:bg-accent-500 text-white font-medium text-sm transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-calculator"></i>
+                            <span>Calculate</span>
+                            <span id="sip-spinner" class="hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                        </button>
+                        <button id="sip-clear-btn" class="px-6 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-sm transition-colors">
+                            Clear
+                        </button>
+                        <button id="sip-example-btn" class="px-6 py-2.5 rounded-lg border border-violet-300 dark:border-violet-600 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20 font-medium text-sm transition-colors">
+                            <i class="fa-solid fa-lightbulb mr-1"></i>Load Example
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SIP Results Area (initially hidden) -->
+                <div id="sip-results" class="hidden space-y-6">
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Invested</p>
+                            <p class="text-xl font-bold text-gray-900 dark:text-white mt-1" id="sip-kpi-invested">--</p>
+                        </div>
+                        <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Final Value</p>
+                            <p class="text-xl font-bold text-accent-600 dark:text-accent-500 mt-1" id="sip-kpi-final">--</p>
+                        </div>
+                        <div class="bg-white dark:bg-surface-800 rounded-xl border border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-4 shadow-sm">
+                            <p class="text-xs text-green-600 dark:text-green-400 uppercase tracking-wide font-semibold">Wealth Gain</p>
+                            <p class="text-xl font-bold text-green-700 dark:text-green-400 mt-1" id="sip-kpi-gain">--</p>
+                        </div>
+                        <div class="bg-white dark:bg-surface-800 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4 shadow-sm">
+                            <p class="text-xs text-amber-600 dark:text-amber-400 uppercase tracking-wide font-semibold">Real Value (adj.)</p>
+                            <p class="text-xl font-bold text-amber-700 dark:text-amber-400 mt-1" id="sip-kpi-real">--</p>
+                        </div>
+                    </div>
+
+                    <!-- Growth Chart -->
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Growth Chart</h3>
+                        <div class="relative" style="height: 350px;">
+                            <canvas id="sipChart" aria-label="SIP growth chart" role="img"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Year-by-Year Breakdown Table -->
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                        <div class="px-5 py-4">
+                            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+                                <i class="fa-solid fa-table mr-2"></i>Year-by-Year Breakdown
+                            </h3>
+                        </div>
+                        <div class="overflow-x-auto max-h-96 border-t border-gray-200 dark:border-gray-700">
+                            <table id="sip-breakdown-table" class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 dark:bg-surface-900 text-xs uppercase text-gray-500 dark:text-gray-400 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-3">Year</th>
+                                        <th class="px-4 py-3">Monthly SIP</th>
+                                        <th class="px-4 py-3">Yearly Investment</th>
+                                        <th class="px-4 py-3">Cumulative Invested</th>
+                                        <th class="px-4 py-3">Portfolio Value</th>
+                                        <th class="px-4 py-3">Real Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tax Impact Summary -->
+                    <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 p-5 shadow-sm">
+                        <h3 class="text-sm font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide mb-2">
+                            <i class="fa-solid fa-info-circle mr-1"></i>Tax Impact Summary
+                        </h3>
+                        <div class="text-sm text-amber-800 dark:text-amber-300" id="sip-tax-info">
+                            <p>Equity mutual fund LTCG (>1 year): 12.5% on gains exceeding &#8377;1.25 lakh/year.</p>
+                            <p class="mt-1">STCG (<1 year): 20% on gains. ELSS qualifies for Section 80C deduction up to &#8377;1.5 lakh.</p>
+                        </div>
+                    </div>
+
+                    <!-- Export / Save -->
+                    <div class="flex flex-wrap gap-3">
+                        <button id="sip-export-pdf" class="px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-file-pdf"></i>Export PDF
+                        </button>
+                        <button id="sip-export-csv" class="px-5 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-file-csv"></i>Export CSV
+                        </button>
+                        <button id="sip-save-scenario" class="px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-bookmark"></i>Save Scenario
+                        </button>
+                    </div>
+
+                    <!-- Affiliate CTAs -->
+                    <div id="sip-affiliate-ctas" class="hidden space-y-4"></div>
+                </div>
+
+                <!-- Saved SIP Scenarios -->
+                <div class="mt-8">
+                    <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-3">Saved SIP Scenarios</h2>
+                    <div id="sip-saved-scenarios" class="space-y-2">
+                        <p class="text-sm text-gray-400 dark:text-gray-500 italic">No saved SIP scenarios</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================= -->
+            <!-- D. EMI CALCULATOR SECTION (NEW)   -->
+            <!-- ================================= -->
+            <section id="emi-section" class="content-section hidden" aria-label="Quick EMI calculator">
+                <div class="mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Quick EMI Calculator</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Instantly calculate EMI or check your loan affordability</p>
+                </div>
+
+                <!-- Mode Toggle -->
+                <div class="flex gap-2 mb-6" role="tablist" aria-label="EMI calculation modes">
+                    <button role="tab" class="emi-mode-btn px-4 py-2 rounded-lg text-sm font-medium bg-violet-600 text-white" data-emi-mode="calculate" aria-selected="true">Calculate EMI</button>
+                    <button role="tab" class="emi-mode-btn px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" data-emi-mode="affordability" aria-selected="false">Check Affordability</button>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <!-- Input Card -->
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                        <!-- EMI Mode Inputs -->
+                        <div id="emi-calculate-inputs" class="emi-mode-panel">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="emi-loan-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Loan Amount (&#8377;)</label>
+                                    <input type="number" id="emi-loan-amount" placeholder="e.g. 2500000" min="1000" step="1000"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-colors" data-auto-calc="true">
+                                </div>
+                                <div>
+                                    <label for="emi-interest-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interest Rate (%)</label>
+                                    <input type="number" id="emi-interest-rate" placeholder="e.g. 8.5" min="0" max="30" step="0.01"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-colors" data-auto-calc="true">
+                                </div>
+                                <div>
+                                    <label for="emi-tenure" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tenure (years)</label>
+                                    <input type="number" id="emi-tenure" placeholder="e.g. 20" min="1" max="50"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-colors" data-auto-calc="true">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Affordability Mode Inputs -->
+                        <div id="emi-affordability-inputs" class="emi-mode-panel hidden">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="emi-monthly-income" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly Income (&#8377;)</label>
+                                    <input type="number" id="emi-monthly-income" placeholder="e.g. 100000" min="1000" step="1000"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-colors" data-auto-calc="true">
+                                </div>
+                                <div>
+                                    <label for="emi-existing-emis" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Existing EMIs (&#8377;)</label>
+                                    <input type="number" id="emi-existing-emis" placeholder="e.g. 15000" min="0" step="500"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-colors" data-auto-calc="true">
+                                </div>
+                                <div>
+                                    <label for="emi-max-percent" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max EMI (% of income)</label>
+                                    <input type="number" id="emi-max-percent" placeholder="e.g. 40" min="10" max="70" step="5" value="40"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-colors" data-auto-calc="true">
+                                </div>
+                                <div>
+                                    <label for="emi-afford-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interest Rate (%)</label>
+                                    <input type="number" id="emi-afford-rate" placeholder="e.g. 8.5" min="0" max="30" step="0.01"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-colors" data-auto-calc="true">
+                                </div>
+                                <div>
+                                    <label for="emi-afford-tenure" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tenure (years)</label>
+                                    <input type="number" id="emi-afford-tenure" placeholder="e.g. 20" min="1" max="50"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500 outline-none transition-colors" data-auto-calc="true">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Instant Result Display -->
+                        <div id="emi-instant-result" class="mt-6 p-4 rounded-lg bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800">
+                            <div id="emi-result-calculate" class="emi-result-panel">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Your Monthly EMI</p>
+                                <p class="text-3xl font-bold text-violet-700 dark:text-violet-300 mt-1" id="emi-result-value">--</p>
+                                <div class="grid grid-cols-2 gap-4 mt-3 text-sm">
+                                    <div>
+                                        <p class="text-gray-500 dark:text-gray-400">Total Interest</p>
+                                        <p class="font-semibold text-gray-900 dark:text-white" id="emi-total-interest">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500 dark:text-gray-400">Total Payment</p>
+                                        <p class="font-semibold text-gray-900 dark:text-white" id="emi-total-payment">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="emi-result-affordability" class="emi-result-panel hidden">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Maximum Loan Amount</p>
+                                <p class="text-3xl font-bold text-violet-700 dark:text-violet-300 mt-1" id="emi-max-loan">--</p>
+                                <div class="grid grid-cols-2 gap-4 mt-3 text-sm">
+                                    <div>
+                                        <p class="text-gray-500 dark:text-gray-400">Recommended EMI</p>
+                                        <p class="font-semibold text-gray-900 dark:text-white" id="emi-recommended">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-500 dark:text-gray-400">Available for EMI</p>
+                                        <p class="font-semibold text-gray-900 dark:text-white" id="emi-available">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart + Mini Summary -->
+                    <div class="space-y-6">
+                        <!-- Pie Chart: Principal vs Interest -->
+                        <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+                            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Principal vs Interest Split</h3>
+                            <div class="relative flex justify-center" style="height: 250px;">
+                                <canvas id="emiPieChart" aria-label="EMI principal vs interest pie chart" role="img"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Mini Amortization Summary -->
+                        <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+                            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Amortization Summary</h3>
+                            <div class="overflow-x-auto max-h-64">
+                                <table id="emi-summary-table" class="w-full text-sm text-left">
+                                    <thead class="bg-gray-50 dark:bg-surface-900 text-xs uppercase text-gray-500 dark:text-gray-400 sticky top-0">
+                                        <tr>
+                                            <th class="px-3 py-2">Year</th>
+                                            <th class="px-3 py-2">Principal</th>
+                                            <th class="px-3 py-2">Interest</th>
+                                            <th class="px-3 py-2">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                        <!-- Populated by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Affiliate CTAs -->
+                        <div id="emi-affiliate-ctas" class="hidden space-y-4"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================= -->
+            <!-- E. FD/RD CALCULATOR SECTION (NEW) -->
+            <!-- ================================= -->
+            <section id="fdrd-section" class="content-section hidden" aria-label="FD and RD calculator">
+                <div class="mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">FD / RD Calculator</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Calculate maturity amounts for Fixed Deposits and Recurring Deposits</p>
+                </div>
+
+                <!-- Tabs: FD | RD -->
+                <div class="flex border-b border-gray-200 dark:border-gray-700 mb-6" role="tablist" aria-label="Deposit type">
+                    <button role="tab" class="fdrd-tab px-6 py-3 text-sm font-medium border-b-2 border-primary-500 text-primary-600 dark:text-primary-400" data-fdrd-tab="fd" aria-selected="true">Fixed Deposit</button>
+                    <button role="tab" class="fdrd-tab px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200" data-fdrd-tab="rd" aria-selected="false">Recurring Deposit</button>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <!-- Input Card -->
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                        <!-- FD Inputs -->
+                        <div id="fdrd-fd-inputs" class="fdrd-tab-panel">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="fd-principal" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Principal Amount (&#8377;)</label>
+                                    <input type="number" id="fd-principal" placeholder="e.g. 500000" min="1000" step="1000"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors">
+                                </div>
+                                <div>
+                                    <label for="fd-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interest Rate (%)</label>
+                                    <input type="number" id="fd-rate" placeholder="e.g. 7.1" min="0" max="15" step="0.01"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors">
+                                </div>
+                                <div>
+                                    <label for="fd-tenure" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tenure (months)</label>
+                                    <input type="number" id="fd-tenure" placeholder="e.g. 60" min="1" max="120"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors">
+                                </div>
+                                <div>
+                                    <label for="fd-compounding" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Compounding Frequency</label>
+                                    <select id="fd-compounding" class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="quarterly" selected>Quarterly</option>
+                                        <option value="half-yearly">Half-Yearly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="fd-senior-citizen" class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                    <label for="fd-senior-citizen" class="text-sm text-gray-700 dark:text-gray-300">Senior Citizen (higher rate + TDS threshold &#8377;50,000)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RD Inputs -->
+                        <div id="fdrd-rd-inputs" class="fdrd-tab-panel hidden">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="rd-monthly-deposit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly Deposit (&#8377;)</label>
+                                    <input type="number" id="rd-monthly-deposit" placeholder="e.g. 10000" min="100" step="100"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors">
+                                </div>
+                                <div>
+                                    <label for="rd-rate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interest Rate (%)</label>
+                                    <input type="number" id="rd-rate" placeholder="e.g. 6.5" min="0" max="15" step="0.01"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors">
+                                </div>
+                                <div>
+                                    <label for="rd-tenure" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tenure (months)</label>
+                                    <input type="number" id="rd-tenure" placeholder="e.g. 36" min="1" max="120"
+                                        class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calculate Button -->
+                        <div class="flex flex-wrap gap-3 mt-6">
+                            <button id="fdrd-calculate-btn" class="px-6 py-2.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium text-sm transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-calculator"></i>Calculate
+                            </button>
+                            <button id="fdrd-clear-btn" class="px-6 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-sm transition-colors">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Results Card -->
+                    <div class="space-y-6">
+                        <div id="fdrd-results" class="hidden">
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm mb-6">
+                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Results</h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Maturity Amount</p>
+                                        <p class="text-2xl font-bold text-primary-700 dark:text-primary-400 mt-1" id="fdrd-maturity">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Interest Earned</p>
+                                        <p class="text-2xl font-bold text-accent-600 dark:text-accent-500 mt-1" id="fdrd-interest-earned">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Effective Annual Rate</p>
+                                        <p class="text-lg font-bold text-gray-900 dark:text-white mt-1" id="fdrd-effective-rate">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">TDS (if applicable)</p>
+                                        <p class="text-lg font-bold text-red-600 dark:text-red-400 mt-1" id="fdrd-tds">--</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Growth Chart -->
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+                                <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Growth Chart</h3>
+                                <div class="relative" style="height: 250px;">
+                                    <canvas id="fdrdChart" aria-label="FD/RD growth chart" role="img"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Affiliate CTAs -->
+                            <div id="fdrd-affiliate-ctas" class="hidden space-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================= -->
+            <!-- F. TAX PLANNER SECTION (NEW)      -->
+            <!-- ================================= -->
+            <section id="tax-section" class="content-section hidden" aria-label="Income tax planner">
+                <div class="mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Income Tax Planner <span class="text-base font-normal text-gray-500 dark:text-gray-400">(AY 2025-26)</span></h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Compare old vs new tax regime and optimize your tax liability</p>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <!-- Inputs Card -->
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+                        <!-- Gross Income -->
+                        <div class="mb-6">
+                            <label for="tax-gross-income" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gross Annual Income (&#8377;)</label>
+                            <input type="number" id="tax-gross-income" placeholder="e.g. 1500000" min="0" step="10000"
+                                class="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none transition-colors text-lg font-semibold">
+                        </div>
+
+                        <!-- Deductions Accordion -->
+                        <div class="space-y-3">
+                            <!-- Section 80C -->
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                <button type="button" class="tax-deduction-toggle w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-surface-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-expanded="false" data-tax-panel="80c">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Section 80C <span class="text-xs text-gray-400">(max &#8377;1.5L)</span></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
+                                </button>
+                                <div class="tax-deduction-panel hidden px-4 py-3 border-t border-gray-200 dark:border-gray-700 space-y-3">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label for="tax-80c-epf" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">EPF</label>
+                                            <input type="number" id="tax-80c-epf" placeholder="0" min="0" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="80c">
+                                        </div>
+                                        <div>
+                                            <label for="tax-80c-ppf" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">PPF</label>
+                                            <input type="number" id="tax-80c-ppf" placeholder="0" min="0" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="80c">
+                                        </div>
+                                        <div>
+                                            <label for="tax-80c-elss" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">ELSS</label>
+                                            <input type="number" id="tax-80c-elss" placeholder="0" min="0" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="80c">
+                                        </div>
+                                        <div>
+                                            <label for="tax-80c-insurance" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Life Insurance</label>
+                                            <input type="number" id="tax-80c-insurance" placeholder="0" min="0" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="80c">
+                                        </div>
+                                        <div>
+                                            <label for="tax-80c-tuition" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Tuition Fees</label>
+                                            <input type="number" id="tax-80c-tuition" placeholder="0" min="0" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="80c">
+                                        </div>
+                                        <div>
+                                            <label for="tax-80c-principal" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Home Loan Principal</label>
+                                            <input type="number" id="tax-80c-principal" placeholder="0" min="0" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="80c">
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-400 dark:text-gray-500">Total 80C: <span id="tax-80c-total" class="font-semibold">&#8377;0</span> / &#8377;1,50,000</p>
+                                </div>
+                            </div>
+
+                            <!-- Section 80D -->
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                <button type="button" class="tax-deduction-toggle w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-surface-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-expanded="false" data-tax-panel="80d">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Section 80D <span class="text-xs text-gray-400">(Health Insurance)</span></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
+                                </button>
+                                <div class="tax-deduction-panel hidden px-4 py-3 border-t border-gray-200 dark:border-gray-700 space-y-3">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label for="tax-80d-self" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Self &amp; Family (max &#8377;25K)</label>
+                                            <input type="number" id="tax-80d-self" placeholder="0" min="0" max="25000" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="80d">
+                                        </div>
+                                        <div>
+                                            <label for="tax-80d-parents" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Parents (max &#8377;50K if senior)</label>
+                                            <input type="number" id="tax-80d-parents" placeholder="0" min="0" max="50000" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="80d">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 80CCD(1B) - NPS -->
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                <button type="button" class="tax-deduction-toggle w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-surface-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-expanded="false" data-tax-panel="80ccd">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Section 80CCD(1B) <span class="text-xs text-gray-400">(NPS - max &#8377;50K)</span></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
+                                </button>
+                                <div class="tax-deduction-panel hidden px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                                    <div>
+                                        <label for="tax-80ccd-nps" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">NPS Contribution</label>
+                                        <input type="number" id="tax-80ccd-nps" placeholder="0" min="0" max="50000" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="80ccd">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- HRA -->
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                <button type="button" class="tax-deduction-toggle w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-surface-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-expanded="false" data-tax-panel="hra">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">HRA Exemption</span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
+                                </button>
+                                <div class="tax-deduction-panel hidden px-4 py-3 border-t border-gray-200 dark:border-gray-700 space-y-3">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label for="tax-hra-basic" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Basic Salary (annual)</label>
+                                            <input type="number" id="tax-hra-basic" placeholder="0" min="0" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="hra">
+                                        </div>
+                                        <div>
+                                            <label for="tax-hra-received" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">HRA Received (annual)</label>
+                                            <input type="number" id="tax-hra-received" placeholder="0" min="0" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="hra">
+                                        </div>
+                                        <div>
+                                            <label for="tax-hra-rent" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Rent Paid (annual)</label>
+                                            <input type="number" id="tax-hra-rent" placeholder="0" min="0" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="hra">
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="tax-hra-metro" class="w-4 h-4 rounded border-gray-300 text-rose-600 focus:ring-rose-500">
+                                            <label for="tax-hra-metro" class="text-xs text-gray-600 dark:text-gray-400 ml-2">Metro city</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Home Loan Interest (Section 24) -->
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                <button type="button" class="tax-deduction-toggle w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-surface-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-expanded="false" data-tax-panel="sec24">
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Section 24 <span class="text-xs text-gray-400">(Home Loan Interest - max &#8377;2L)</span></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-gray-500 transition-transform"></i>
+                                </button>
+                                <div class="tax-deduction-panel hidden px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                                    <div>
+                                        <label for="tax-sec24-interest" class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Home Loan Interest Paid (annual)</label>
+                                        <input type="number" id="tax-sec24-interest" placeholder="0" min="0" max="200000" class="w-full px-2 py-1.5 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-rose-500" data-tax-deduction="sec24">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calculate Button -->
+                        <div class="flex flex-wrap gap-3 mt-6">
+                            <button id="tax-calculate-btn" class="px-6 py-2.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium text-sm transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-calculator"></i>Calculate Tax
+                            </button>
+                            <button id="tax-clear-btn" class="px-6 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-sm transition-colors">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Results Side-by-Side -->
+                    <div id="tax-results" class="hidden space-y-6">
+                        <!-- Recommendation Badge -->
+                        <div id="tax-recommendation" class="p-4 rounded-xl border-2 font-medium text-sm text-center hidden">
+                            <!-- Populated by JS: "Old Regime saves you X" or "New Regime saves you X" -->
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Old Regime -->
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+                                <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">Old Regime</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-xs text-gray-400">Taxable Income</p>
+                                        <p class="text-lg font-bold text-gray-900 dark:text-white" id="tax-old-taxable">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-400">Income Tax</p>
+                                        <p class="text-lg font-bold text-gray-900 dark:text-white" id="tax-old-tax">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-400">Cess (4%)</p>
+                                        <p class="text-lg font-bold text-gray-900 dark:text-white" id="tax-old-cess">--</p>
+                                    </div>
+                                    <hr class="border-gray-200 dark:border-gray-700">
+                                    <div>
+                                        <p class="text-xs text-gray-400 font-semibold">Total Tax Payable</p>
+                                        <p class="text-2xl font-bold text-rose-700 dark:text-rose-400" id="tax-old-total">--</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- New Regime -->
+                            <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+                                <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">New Regime</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-xs text-gray-400">Taxable Income</p>
+                                        <p class="text-lg font-bold text-gray-900 dark:text-white" id="tax-new-taxable">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-400">Income Tax</p>
+                                        <p class="text-lg font-bold text-gray-900 dark:text-white" id="tax-new-tax">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-400">Cess (4%)</p>
+                                        <p class="text-lg font-bold text-gray-900 dark:text-white" id="tax-new-cess">--</p>
+                                    </div>
+                                    <hr class="border-gray-200 dark:border-gray-700">
+                                    <div>
+                                        <p class="text-xs text-gray-400 font-semibold">Total Tax Payable</p>
+                                        <p class="text-2xl font-bold text-rose-700 dark:text-rose-400" id="tax-new-total">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Affiliate CTAs -->
+                        <div id="tax-affiliate-ctas" class="hidden space-y-4"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================================= -->
+            <!-- G. COMPARE SECTION                -->
+            <!-- ================================= -->
+            <section id="compare-section" class="content-section hidden" aria-label="Scenario comparison">
+                <div class="mb-6">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Compare Scenarios</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Select saved scenarios and compare them side-by-side</p>
+                </div>
+
+                <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm mb-6">
+                    <!-- Scenario Type Selector -->
+                    <div class="mb-4">
+                        <label for="compare-type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scenario Type</label>
+                        <select id="compare-type" class="w-full sm:w-64 px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-surface-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors">
+                            <option value="loan">Loan Scenarios</option>
+                            <option value="sip">SIP Scenarios</option>
+                        </select>
+                    </div>
+
+                    <!-- Scenario Checkboxes -->
+                    <div class="mb-4">
+                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select 2-4 scenarios to compare:</p>
+                        <div id="compare-scenario-list" class="space-y-2">
+                            <p class="text-sm text-gray-400 dark:text-gray-500 italic">No saved scenarios available. Save scenarios from Loan Analyzer or SIP Planner first.</p>
+                        </div>
+                    </div>
+
+                    <!-- Compare Button -->
+                    <button id="compare-btn" class="px-6 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium text-sm transition-colors flex items-center gap-2" disabled>
+                        <i class="fa-solid fa-scale-balanced"></i>Compare Selected
+                    </button>
+                </div>
+
+                <!-- Comparison Results (initially hidden) -->
+                <div id="compare-results" class="hidden space-y-6">
+                    <!-- Side-by-Side Comparison Table -->
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+                            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Comparison Table</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table id="compare-table" class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 dark:bg-surface-900 text-xs uppercase text-gray-500 dark:text-gray-400">
+                                    <!-- Populated by JS -->
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Overlay Charts -->
+                    <div class="bg-white dark:bg-surface-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm">
+                        <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">Comparison Chart</h3>
+                        <div class="relative" style="height: 350px;">
+                            <canvas id="compareChart" aria-label="Scenario comparison chart" role="img"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Module Script -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
